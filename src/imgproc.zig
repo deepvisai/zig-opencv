@@ -479,7 +479,7 @@ pub fn approxPolyDP(curve: PointVector, epsilon: f64, closed: bool) !PointVector
 /// For further details, please see:
 /// http://docs.opencv.org/master/d7/d1b/group__imgproc__misc.html#ga4e0972be5de079fed4e3a10e24ef5ef0
 ///
-pub fn cvtColor(src: Mat, dst: *Mat, code: ColorConversionCode) void {
+pub fn cvtColor(src: Mat, dst: *Mat, code: ColorConversionCode) !void {
     try cr(c.CvtColor(src.ptr, dst.*.ptr, @intFromEnum(code)));
 }
 
@@ -487,7 +487,7 @@ pub fn cvtColor(src: Mat, dst: *Mat, code: ColorConversionCode) void {
 ///
 /// For further details, please see:
 /// https://docs.opencv.org/master/d6/dc7/group__imgproc__hist.html#ga7e54091f0c937d49bf84152a16f76d6e
-pub fn equalizeHist(src: Mat, dst: *Mat) void {
+pub fn equalizeHist(src: Mat, dst: *Mat) !void {
     try cr(c.EqualizeHist(src.ptr, dst.*.ptr));
 }
 
@@ -814,7 +814,7 @@ pub fn connectedComponentsWithStatsWithParams(src: Mat, labels: *Mat, stats: *Ma
 /// For further details, please see:
 /// http://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#gaabe8c836e97159a9193fb0b11ac52cf1
 ///
-pub fn gaussianBlur(src: Mat, dst: *Mat, ps: Size, sigma_x: f64, sigma_y: f64, border_type: BorderType) void {
+pub fn gaussianBlur(src: Mat, dst: *Mat, ps: Size, sigma_x: f64, sigma_y: f64, border_type: BorderType) !void {
     try cr(c.GaussianBlur(src.ptr, dst.*.ptr, ps.toC(), sigma_x, sigma_y, border_type.toNum()));
 }
 
@@ -1066,7 +1066,7 @@ pub fn circleWithParams(img: *Mat, center: Point, radius: i32, color: Color, thi
 /// https://docs.opencv.org/master/d6/d6e/group__imgproc__draw.html#ga28b2267d35786f5f890ca167236cbc69
 ///
 pub fn ellipse(img: *Mat, center: Point, axes: Point, angle: f64, start_angle: f64, end_angle: f64, color: Color, thickness: i32) !void {
-    cr(c.Ellipse(img.*.ptr, center.toC(), axes.toC(), angle, start_angle, end_angle, color.toScalar().toC(), thickness));
+    try cr(c.Ellipse(img.*.ptr, center.toC(), axes.toC(), angle, start_angle, end_angle, color.toScalar().toC(), thickness));
 }
 
 /// Ellipse draws a simple or thick elliptic arc or fills an ellipse sector.
@@ -1074,7 +1074,7 @@ pub fn ellipse(img: *Mat, center: Point, axes: Point, angle: f64, start_angle: f
 /// For further details, please see:
 /// https://docs.opencv.org/master/d6/d6e/group__imgproc__draw.html#ga28b2267d35786f5f890ca167236cbc69
 pub fn ellipseWithParams(img: *Mat, center: Point, axes: Point, angle: f64, start_angle: f64, end_angle: f64, color: Color, thickness: i32, line_type: LineType, shift: i32) !void {
-    cr(c.EllipseWithParams(img.*.ptr, center.toC(), axes.toC(), angle, start_angle, end_angle, color.toScalar().toC(), thickness, @intFromEnum(line_type), shift));
+    try cr(c.EllipseWithParams(img.*.ptr, center.toC(), axes.toC(), angle, start_angle, end_angle, color.toScalar().toC(), thickness, @intFromEnum(line_type), shift));
 }
 
 /// Line draws a line segment connecting two points.
@@ -1082,7 +1082,7 @@ pub fn ellipseWithParams(img: *Mat, center: Point, axes: Point, angle: f64, star
 /// For further details, please see:
 /// https://docs.opencv.org/master/d6/d6e/group__imgproc__draw.html#ga7078a9fae8c7e7d13d24dac2520ae4a2
 pub fn line(img: *Mat, pt1: Point, pt2: Point, color: Color, thickness: i32) !void {
-    cr(c.Line(img.ptr, pt1.toC(), pt2.toC(), color.toScalar().toC(), thickness));
+    try cr(c.Line(img.ptr, pt1.toC(), pt2.toC(), color.toScalar().toC(), thickness));
 }
 
 /// Rectangle draws a simple, thick, or filled up-right rectangle.
@@ -1092,7 +1092,7 @@ pub fn line(img: *Mat, pt1: Point, pt2: Point, color: Color, thickness: i32) !vo
 /// http://docs.opencv.org/master/d6/d6e/group__imgproc__draw.html#ga346ac30b5c74e9b5137576c9ee9e0e8c
 ///
 pub fn rectangle(img: *Mat, rect: Rect, color: Color, thickness: i32) !void {
-    cr(c.Rectangle(img.*.ptr, rect.toC(), color.toScalar().toC(), thickness));
+    try cr(c.Rectangle(img.*.ptr, rect.toC(), color.toScalar().toC(), thickness));
 }
 
 /// RectangleWithParams draws a simple, thick, or filled up-right rectangle.
@@ -1102,7 +1102,7 @@ pub fn rectangle(img: *Mat, rect: Rect, color: Color, thickness: i32) !void {
 /// http://docs.opencv.org/master/d6/d6e/group__imgproc__draw.html#ga346ac30b5c74e9b5137576c9ee9e0e8c
 ///
 pub fn rectangleWithParams(img: *Mat, rect: Rect, color: Color, thickness: i32, line_type: LineType, shift: i32) !void {
-    cr(c.RectangleWithParams(img.*.ptr, rect.toC(), color.toScalar().toC(), thickness, @intFromEnum(line_type), shift));
+    try cr(c.RectangleWithParams(img.*.ptr, rect.toC(), color.toScalar().toC(), thickness, @intFromEnum(line_type), shift));
 }
 
 /// FillPoly fills the area bounded by one or more polygons.
@@ -1110,7 +1110,7 @@ pub fn rectangleWithParams(img: *Mat, rect: Rect, color: Color, thickness: i32, 
 /// For more information, see:
 /// https://docs.opencv.org/master/d6/d6e/group__imgproc__draw.html#gaf30888828337aa4c6b56782b5dfbd4b7
 pub fn fillPoly(img: *Mat, points: PointsVector, color: Color) !void {
-    cr(c.FillPoly(img.*.ptr, points.toC(), color.toScalar().toC()));
+    try cr(c.FillPoly(img.*.ptr, points.toC(), color.toScalar().toC()));
 }
 
 /// FillPolyWithParams fills the area bounded by one or more polygons.
@@ -1118,7 +1118,7 @@ pub fn fillPoly(img: *Mat, points: PointsVector, color: Color) !void {
 /// For more information, see:
 /// https://docs.opencv.org/master/d6/d6e/group__imgproc__draw.html#gaf30888828337aa4c6b56782b5dfbd4b7
 pub fn fillPolyWithParams(img: *Mat, points: PointsVector, color: Color, line_type: LineType, shift: i32, offset: Point) !void {
-    cr(c.FillPolyWithParams(img.*.ptr, points.toC(), color.toScalar().toC(), @intFromEnum(line_type), shift, offset.toC()));
+    try cr(c.FillPolyWithParams(img.*.ptr, points.toC(), color.toScalar().toC(), @intFromEnum(line_type), shift, offset.toC()));
 }
 
 /// Polylines draws several polygonal curves.
@@ -1126,7 +1126,7 @@ pub fn fillPolyWithParams(img: *Mat, points: PointsVector, color: Color, line_ty
 /// For more information, see:
 /// https://docs.opencv.org/master/d6/d6e/group__imgproc__draw.html#ga1ea127ffbbb7e0bfc4fd6fd2eb64263c
 pub fn polylines(img: *Mat, points: PointsVector, is_closed: bool, color: Color, thickness: i32) !void {
-    cr(c.Polylines(img.*.ptr, points.toC(), is_closed, color.toScalar().toC(), thickness));
+    try cr(c.Polylines(img.*.ptr, points.toC(), is_closed, color.toScalar().toC(), thickness));
 }
 
 /// GetTextSize calculates the width and height of a text string.
@@ -1371,7 +1371,7 @@ pub fn spatialGradient(src: Mat, dx: *Mat, dy: *Mat, ksize: MatType, border_type
 ///
 /// For further details, please see:
 /// https://docs.opencv.org/master/da/d54/group__imgproc__transform.html#gab75ef31ce5cdfb5c44b6da5f3b908ea4
-pub fn remap(src: Mat, dst: *Mat, map1: Mat, map2: Mat, interpolation: InterpolationFlag, border_mode: BorderType, border_value: Color) void {
+pub fn remap(src: Mat, dst: *Mat, map1: Mat, map2: Mat, interpolation: InterpolationFlag, border_mode: BorderType, border_value: Color) !void {
     try cr(c.Remap(src.ptr, dst.*.ptr, map1.ptr, map2.ptr, interpolation.toNum(), border_mode.toNum(), border_value.toScalar().toC()));
 }
 
@@ -1413,7 +1413,7 @@ pub fn fitLine(pts: PointVector, line_mat: *Mat, dist_type: DistanceType, param:
 /// https://docs.opencv.org/master/da/d54/group__imgproc__transform.html#gaa38a6884ac8b6e0b9bed47939b5362f3
 ///
 pub fn linearPolar(src: Mat, dst: *Mat, center: Point, max_radius: f64, flags: InterpolationFlag) !void {
-    cr(c.LinearPolar(src.ptr, dst.*.ptr, center.toC(), max_radius, flags.toNum()));
+    try cr(c.LinearPolar(src.ptr, dst.*.ptr, center.toC(), max_radius, flags.toNum()));
 }
 
 /// ClipLine clips the line against the image rectangle.
@@ -1445,7 +1445,7 @@ pub fn phaseCorrelate(src1: Mat, src2: Mat, window: Mat) struct { point: Point2f
 /// https://docs.opencv.org/master/d7/df3/group__imgproc__motion.html#ga1a567a79901513811ff3b9976923b199
 ///
 pub fn accumulate(src: Mat, dst: *Mat) !void {
-    cr(c.Mat_Accumulate(src.ptr, dst.*.ptr));
+    try cr(c.Mat_Accumulate(src.ptr, dst.*.ptr));
 }
 
 /// Adds an image to the accumulator image with mask.
@@ -1454,7 +1454,7 @@ pub fn accumulate(src: Mat, dst: *Mat) !void {
 /// https://docs.opencv.org/master/d7/df3/group__imgproc__motion.html#ga1a567a79901513811ff3b9976923b199
 ///
 pub fn accumulateWithMask(src: Mat, dst: *Mat, mask: Mat) !void {
-    cr(c.Mat_AccumulateWithMask(src.ptr, dst.*.ptr, mask.ptr));
+    try cr(c.Mat_AccumulateWithMask(src.ptr, dst.*.ptr, mask.ptr));
 }
 
 /// Adds the square of a source image to the accumulator image.
@@ -1463,7 +1463,7 @@ pub fn accumulateWithMask(src: Mat, dst: *Mat, mask: Mat) !void {
 /// https://docs.opencv.org/master/d7/df3/group__imgproc__motion.html#gacb75e7ffb573227088cef9ceaf80be8c
 ///
 pub fn accumulateSquare(src: Mat, dst: *Mat) !void {
-    cr(c.Mat_AccumulateSquare(src.ptr, dst.*.ptr));
+    try cr(c.Mat_AccumulateSquare(src.ptr, dst.*.ptr));
 }
 
 /// Adds the square of a source image to the accumulator image with mask.
@@ -1472,7 +1472,7 @@ pub fn accumulateSquare(src: Mat, dst: *Mat) !void {
 /// https://docs.opencv.org/master/d7/df3/group__imgproc__motion.html#gacb75e7ffb573227088cef9ceaf80be8c
 ///
 pub fn accumulateSquareWithMask(src: Mat, dst: *Mat, mask: Mat) !void {
-    cr(c.Mat_AccumulateSquareWithMask(src.ptr, dst.*.ptr, mask.ptr));
+    try cr(c.Mat_AccumulateSquareWithMask(src.ptr, dst.*.ptr, mask.ptr));
 }
 
 /// Adds the per-element product of two input images to the accumulator image.
@@ -1481,7 +1481,7 @@ pub fn accumulateSquareWithMask(src: Mat, dst: *Mat, mask: Mat) !void {
 /// https://docs.opencv.org/master/d7/df3/group__imgproc__motion.html#ga82518a940ecfda49460f66117ac82520
 ///
 pub fn accumulateProduct(src1: Mat, src2: Mat, dst: *Mat) !void {
-    cr(c.Mat_AccumulateProduct(src1.ptr, src2.ptr, dst.*.ptr));
+    try cr(c.Mat_AccumulateProduct(src1.ptr, src2.ptr, dst.*.ptr));
 }
 
 /// Adds the per-element product of two input images to the accumulator image with mask.
@@ -1490,7 +1490,7 @@ pub fn accumulateProduct(src1: Mat, src2: Mat, dst: *Mat) !void {
 /// https://docs.opencv.org/master/d7/df3/group__imgproc__motion.html#ga82518a940ecfda49460f66117ac82520
 ///
 pub fn accumulateProductWithMask(src1: Mat, src2: Mat, dst: *Mat, mask: Mat) !void {
-    cr(c.Mat_AccumulateProductWithMask(src1.ptr, src2.ptr, dst.*.ptr, mask.ptr));
+    try cr(c.Mat_AccumulateProductWithMask(src1.ptr, src2.ptr, dst.*.ptr, mask.ptr));
 }
 
 /// Updates a running average.
@@ -1499,7 +1499,7 @@ pub fn accumulateProductWithMask(src1: Mat, src2: Mat, dst: *Mat, mask: Mat) !vo
 /// https://docs.opencv.org/master/d7/df3/group__imgproc__motion.html#ga4f9552b541187f61f6818e8d2d826bc7
 ///
 pub fn accumulatedWeighted(src: Mat, dst: *Mat, alpha: f64) !void {
-    cr(c.Mat_AccumulatedWeighted(src.ptr, dst.*.ptr, alpha));
+    try cr(c.Mat_AccumulatedWeighted(src.ptr, dst.*.ptr, alpha));
 }
 
 /// Updates a running average with mask.
@@ -1508,7 +1508,7 @@ pub fn accumulatedWeighted(src: Mat, dst: *Mat, alpha: f64) !void {
 /// https://docs.opencv.org/master/d7/df3/group__imgproc__motion.html#ga4f9552b541187f61f6818e8d2d826bc7
 ///
 pub fn accumulatedWeightedWithMask(src: Mat, dst: *Mat, alpha: f64, mask: Mat) !void {
-    cr(c.Mat_AccumulatedWeightedWithMask(src.ptr, dst.*.ptr, alpha, mask.ptr));
+    try cr(c.Mat_AccumulatedWeightedWithMask(src.ptr, dst.*.ptr, alpha, mask.ptr));
 }
 
 test "imgproc" {

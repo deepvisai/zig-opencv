@@ -115,7 +115,7 @@ pub const Window = struct {
     }
 
     pub fn deinit(self: *Self) void {
-        try cr(c.Window_Close(self.getCWindowName()));
+        c.Window_Close(self.getCWindowName());
         self.open = false;
     }
 
@@ -345,7 +345,7 @@ test "highgui window imshow" {
 
     var img = try imgcodecs.imRead("test/images/face-detect.jpg", .unchanged);
     defer img.deinit();
-    window.imShow(img);
+    try window.imShow(img);
 }
 
 test "highgui window selectROI" {
@@ -364,7 +364,7 @@ test "highgui window trackbar" {
     if (!hasDisplay()) return error.SkipZigTest;
 
     var window = try Window.init("testtrackbar");
-    defer window.deinit();
+    defer _ = window.deinit();
 
     window.createTrackbar("trackme", 100);
 

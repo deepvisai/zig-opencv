@@ -444,7 +444,7 @@ test "video CalcOpticalFlow.pyrLK" {
     var dst = try Mat.init();
     defer dst.deinit();
 
-    imgproc.cvtColor(img1, &dst, .bgra_to_gray);
+    try imgproc.cvtColor(img1, &dst, .bgra_to_gray);
 
     var img2 = try dst.clone();
     defer img2.deinit();
@@ -470,7 +470,7 @@ test "video CalcOpticalFlow.pyrLK with params" {
     var dst = try Mat.init();
     defer dst.deinit();
 
-    imgproc.cvtColor(img1, &dst, .bgra_to_gray);
+    try imgproc.cvtColor(img1, &dst, .bgra_to_gray);
 
     var img2 = try dst.clone();
     defer img2.deinit();
@@ -523,7 +523,7 @@ test "video CalcOpticalFlow.pyrLKWithParams" {
     var dst = try Mat.init();
     defer dst.deinit();
 
-    imgproc.cvtColor(img1, &dst, .bgra_to_gray);
+    try imgproc.cvtColor(img1, &dst, .bgra_to_gray);
 
     var img2 = try dst.clone();
     defer img2.deinit();

@@ -392,7 +392,7 @@ test "calib3d fisheye undistortImage" {
     d.set(f64, 0, 2, 0);
     d.set(f64, 0, 3, 0);
 
-    Fisheye.undistortImage(img, &dst, k, d);
+    try Fisheye.undistortImage(img, &dst, k, d);
     try testing.expectEqual(false, dst.isEmpty());
     try imgcodecs.imWrite(cache_dir ++ "fisheye_sample_undistort.jpg", dst);
 }
@@ -431,14 +431,14 @@ test "calib3d fisheye undistortImageWithParams" {
     var k_new = try Mat.initSize(3, 3, .cv64fc1);
     defer k_new.deinit();
 
-    k.copyTo(&k_new);
+    try k.copyTo(&k_new);
 
     k_new.set(f64, 0, 0, 0.4 * k.get(f64, 0, 0));
     k_new.set(f64, 1, 1, 0.4 * k.get(f64, 1, 1));
 
     const size = core.Size.init(dst.rows(), dst.cols());
 
-    Fisheye.undistortImageWithParams(img, &dst, k, d, k_new, size);
+    try Fisheye.undistortImageWithParams(img, &dst, k, d, k_new, size);
     try testing.expectEqual(false, dst.isEmpty());
     try imgcodecs.imWrite(cache_dir ++ "fisheye_sample_undistort_with_params.jpg", dst);
 }
@@ -491,7 +491,7 @@ test "calib3d initUndistortRectifyMap getOptimalNewCameraMatrixWithParams" {
     defer mapx.deinit();
     var mapy = try Mat.init();
     defer mapy.deinit();
-    initUndistortRectifyMap(
+    try initUndistortRectifyMap(
         k,
         d,
         r,
@@ -501,7 +501,7 @@ test "calib3d initUndistortRectifyMap getOptimalNewCameraMatrixWithParams" {
         mapx,
         mapy,
     );
-    imgproc.remap(img, &dst, mapx, mapy, .{ .type = .linear }, .{ .type = .constant }, core.Color.init(0, 0, 0, 0));
+    try imgproc.remap(img, &dst, mapx, mapy, .{ .type = .linear }, .{ .type = .constant }, core.Color.init(0, 0, 0, 0));
 
     try imgcodecs.imWrite(cache_dir ++ "fisheye_sample_RectifyMap.jpg", dst);
 }
@@ -540,7 +540,7 @@ test "calib3d undistort" {
     var k_new = try Mat.init();
     defer k_new.deinit();
 
-    k.copyTo(&k_new);
+    try k.copyTo(&k_new);
 
     k_new.set(f64, 0, 0, 0.5 * k.get(f64, 0, 0));
     k_new.set(f64, 1, 1, 0.5 * k.get(f64, 1, 1));
@@ -603,7 +603,7 @@ test "calib3d undistortPoint" {
     var k_new = try Mat.init();
     defer k_new.deinit();
 
-    k.copyTo(&k_new);
+    try k.copyTo(&k_new);
 
     k_new.set(f64, 0, 0, 0.4 * k.get(f64, 0, 0));
     k_new.set(f64, 1, 1, 0.4 * k.get(f64, 1, 1));
@@ -612,7 +612,7 @@ test "calib3d undistortPoint" {
 
     _ = try Fisheye.estimateNewCameraMatrixForUndistortRectify(k, d, img_size, r, &k_new, 1, img_size, 1);
 
-    _ = Fisheye.undistortPoints(src, &dst, k, d, r, k_new);
+    _ = try Fisheye.undistortPoints(src, &dst, k, d, r, k_new);
 
     try testing.expect(0 != dst.get(f64, 0, 0));
 }
@@ -632,7 +632,7 @@ test "calib3d find and draw chessboard" {
     var img2 = try Mat.initSize(150, 150, .cv8uc1);
     defer img2.deinit();
 
-    drawChessboardCorners(&img2, Size.init(4, 6), corners, true);
+    try drawChessboardCorners(&img2, Size.init(4, 6), corners, true);
 
     try testing.expectEqual(false, img2.isEmpty());
     try imgcodecs.imWrite(cache_dir ++ "chessboard_4x6_result.png", img2);
@@ -761,7 +761,7 @@ test "calib3d calibrateCamera" {
     var xor = try Mat.init();
     defer xor.deinit();
 
-    Mat.bitwiseXor(dest, target, &xor);
+    try Mat.bitwiseXor(dest, target, &xor);
     const different_pixels_number = xor.sum().val1;
     const max_different_pixels_number: f32 = @as(f32, @floatFromInt(img.cols())) * @as(f32, @floatFromInt(img.rows())) * 0.005;
     try testing.expect(max_different_pixels_number >= different_pixels_number);

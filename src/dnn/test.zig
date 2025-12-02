@@ -156,7 +156,7 @@ fn checkCaffeNet(net: *Net) !void {
     var prob_mat = try prob.reshape(1, 1);
     defer prob_mat.deinit();
 
-    const minmax = prob_mat.minMaxLoc();
+    const minmax = try prob_mat.minMaxLoc();
 
     try testing.expectApproxEqRel(@as(f64, 0.9998), minmax.max_val, 0.00005);
     try testing.expectEqual(@as(i32, 955), minmax.min_loc.x);
@@ -227,7 +227,7 @@ fn checkTensorflow(net: *Net) !void {
     var prob_mat = try prob.reshape(1, 1);
     defer prob_mat.deinit();
 
-    const minmax = prob_mat.minMaxLoc();
+    const minmax = try prob_mat.minMaxLoc();
 
     try testing.expectApproxEqRel(@as(f64, 1.0), minmax.max_val, 0.00005);
     try testing.expectEqual(@as(i32, 481), minmax.min_loc.x);
@@ -310,7 +310,7 @@ fn checkONNX(net: *Net) !void {
     var prob_mat = try prob.reshape(1, 1);
     defer prob_mat.deinit();
 
-    const minmax = prob_mat.minMaxLoc();
+    const minmax = try prob_mat.minMaxLoc();
 
     try testing.expectApproxEqRel(@as(f64, 0.9965), minmax.max_val, 0.0005);
     try testing.expectEqual(@as(i32, 955), minmax.min_loc.x);
@@ -462,11 +462,11 @@ test "dnn blob getImages" {
             var imgi = imgs_from_blob.list.items[i];
             var img_from_blob = try Mat.init();
             defer img_from_blob.deinit();
-            imgi.convertTo(&img_from_blob, imgi.getType());
+            try imgi.convertTo(&img_from_blob, imgi.getType());
             try testing.expectEqual(false, img_from_blob.isEmpty());
             var diff = try Mat.init();
             defer diff.deinit();
-            Mat.compare(imgi, img_from_blob, &diff, .ne);
+            try Mat.compare(imgi, img_from_blob, &diff, .ne);
             const nz = Mat.countNonZero(diff);
             try testing.expectEqual(@as(i32, 0), nz);
         }
@@ -478,7 +478,7 @@ test "dnn nmsboxes" {
     defer img.deinit();
     try testing.expectEqual(false, img.isEmpty());
 
-    img.convertTo(&img, .cv32fc1);
+    try img.convertTo(&img, .cv32fc1);
 
     var bboxes = [_]Rect{
         Rect.init(53, 47, 589 - 53, 451 - 47),
@@ -510,7 +510,7 @@ test "dnn nmsboxesWithParams" {
     defer img.deinit();
     try testing.expectEqual(false, img.isEmpty());
 
-    img.convertTo(&img, .cv32fc1);
+    try img.convertTo(&img, .cv32fc1);
 
     var bboxes = [_]Rect{
         Rect.init(53, 47, 589 - 53, 451 - 47),

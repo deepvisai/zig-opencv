@@ -24,7 +24,7 @@ test "imgproc CLAHE" {
     var src = try Mat.init();
     defer src.deinit();
 
-    img.convertTo(&src, .cv8uc1);
+    try img.convertTo(&src, .cv8uc1);
 
     var dst = try Mat.init();
     defer dst.deinit();
@@ -32,7 +32,7 @@ test "imgproc CLAHE" {
     var c = try imgproc.CLAHE.init();
     defer c.deinit();
 
-    c.apply(src, &dst);
+    try c.apply(src, &dst);
 
     try testing.expectEqual(false, dst.isEmpty());
     try testing.expectEqual(img.rows(), dst.rows());
@@ -46,7 +46,7 @@ test "imgproc CLAHE WithParams" {
     var src = try Mat.init();
     defer src.deinit();
 
-    img.convertTo(&src, .cv8uc1);
+    try img.convertTo(&src, .cv8uc1);
 
     var dst = try Mat.init();
     defer dst.deinit();
@@ -54,7 +54,7 @@ test "imgproc CLAHE WithParams" {
     var c = try imgproc.CLAHE.initWithParams(2, Size.init(10, 10));
     defer c.deinit();
 
-    c.apply(src, &dst);
+    try c.apply(src, &dst);
 
     try testing.expectEqual(false, dst.isEmpty());
     try testing.expectEqual(img.rows(), dst.rows());
@@ -68,11 +68,11 @@ test "imgproc approxPolyDP" {
     const white = Color.init(255, 255, 255, 255);
 
     // Draw a triangle
-    imgproc.line(&img, Point.init(25, 25), Point.init(25, 75), white, 1);
-    imgproc.line(&img, Point.init(25, 75), Point.init(75, 50), white, 1);
-    imgproc.line(&img, Point.init(75, 50), Point.init(25, 25), white, 1);
+    try imgproc.line(&img, Point.init(25, 25), Point.init(25, 75), white, 1);
+    try imgproc.line(&img, Point.init(25, 75), Point.init(75, 50), white, 1);
+    try imgproc.line(&img, Point.init(75, 50), Point.init(25, 25), white, 1);
     // Draw rectangle
-    imgproc.rectangle(&img, Rect.init(125, 25, 50, 50), white, 1);
+    try imgproc.rectangle(&img, Rect.init(125, 25, 50, 50), white, 1);
 
     var contours = try imgproc.findContours(img, .external, .simple);
     defer contours.deinit();
@@ -132,13 +132,13 @@ test "imgproc convexity" {
     var hull = try Mat.init();
     defer hull.deinit();
 
-    imgproc.convexHull(try res.at(0), &hull, true, false);
+    try imgproc.convexHull(try res.at(0), &hull, true, false);
     try testing.expectEqual(false, hull.isEmpty());
 
     var defects = try Mat.init();
     defer defects.deinit();
 
-    imgproc.convexityDefects(try res.at(0), hull, &defects);
+    try imgproc.convexityDefects(try res.at(0), hull, &defects);
     try testing.expectEqual(false, defects.isEmpty());
 }
 
@@ -158,7 +158,7 @@ test "imgproc min enclosing circle" {
     var pv = try core.PointVector.initFromPoints(pts[0..], testing.allocator);
     defer pv.deinit();
 
-    const res = imgproc.minEnclosingCircle(pv);
+    const res = try imgproc.minEnclosingCircle(pv);
     const radius = res.radius;
     const point = res.point;
 
@@ -175,7 +175,7 @@ test "imgproc cvtColor" {
     var dst = try Mat.init();
     defer dst.deinit();
 
-    imgproc.cvtColor(img, &dst, .bgra_to_gray);
+    try imgproc.cvtColor(img, &dst, .bgra_to_gray);
 
     try testing.expectEqual(false, dst.isEmpty());
     try testing.expectEqual(img.rows(), dst.rows());
@@ -190,7 +190,7 @@ test "imgproc bilateral filter" {
     var dst = try Mat.init();
     defer dst.deinit();
 
-    imgproc.bilateralFilter(img, &dst, 1, 2.0, 3.0);
+    try imgproc.bilateralFilter(img, &dst, 1, 2.0, 3.0);
 
     try testing.expectEqual(false, dst.isEmpty());
     try testing.expectEqual(img.rows(), dst.rows());
@@ -205,7 +205,7 @@ test "imgproc blur" {
     var dst = try Mat.init();
     defer dst.deinit();
 
-    imgproc.blur(img, &dst, Size.init(3, 3));
+    try imgproc.blur(img, &dst, Size.init(3, 3));
 
     try testing.expectEqual(false, dst.isEmpty());
     try testing.expectEqual(img.rows(), dst.rows());
@@ -220,7 +220,7 @@ test "imgproc sobel" {
     var dst = try Mat.init();
     defer dst.deinit();
 
-    imgproc.sobel(img, &dst, .cv16sc1, 0, 1, 3, 1, 0, .{});
+    try imgproc.sobel(img, &dst, .cv16sc1, 0, 1, 3, 1, 0, .{});
 
     try testing.expectEqual(false, dst.isEmpty());
     try testing.expectEqual(img.rows(), dst.rows());
@@ -238,7 +238,7 @@ test "imgproc spatialGradient" {
     var dy = try Mat.init();
     defer dy.deinit();
 
-    imgproc.spatialGradient(img, &dx, &dy, .cv16sc1, .{});
+    try imgproc.spatialGradient(img, &dx, &dy, .cv16sc1, .{});
 
     try testing.expectEqual(false, dx.isEmpty());
     try testing.expectEqual(img.rows(), dx.rows());
@@ -256,7 +256,7 @@ test "imgproc boxfilter" {
     var dst = try Mat.init();
     defer dst.deinit();
 
-    imgproc.boxFilter(img, &dst, -1, Size.init(3, 3));
+    try imgproc.boxFilter(img, &dst, -1, Size.init(3, 3));
 
     try testing.expectEqual(false, dst.isEmpty());
     try testing.expectEqual(img.rows(), dst.rows());
@@ -271,7 +271,7 @@ test "imgproc sqBoxfilter" {
     var dst = try Mat.init();
     defer dst.deinit();
 
-    imgproc.sqBoxFilter(img, &dst, -1, Size.init(3, 3));
+    try imgproc.sqBoxFilter(img, &dst, -1, Size.init(3, 3));
 
     try testing.expectEqual(false, dst.isEmpty());
     try testing.expectEqual(img.rows(), dst.rows());
@@ -289,7 +289,7 @@ test "imgproc dilate" {
     var kernel = try imgproc.getStructuringElement(.rect, Size.init(1, 1));
     defer kernel.deinit();
 
-    imgproc.dilate(img, &dst, kernel);
+    try imgproc.dilate(img, &dst, kernel);
 
     try testing.expectEqual(false, dst.isEmpty());
     try testing.expectEqual(img.rows(), dst.rows());
@@ -307,7 +307,7 @@ test "imgproc dilateWithParams" {
     var kernel = try imgproc.getStructuringElement(.rect, Size.init(1, 1));
     defer kernel.deinit();
 
-    imgproc.dilateWithParams(img, &dst, kernel, Point.init(0, 0), .{ .type = .wrap }, .{}, Color{});
+    try imgproc.dilateWithParams(img, &dst, kernel, Point.init(0, 0), .{ .type = .wrap }, .{}, Color{});
 
     try testing.expectEqual(false, dst.isEmpty());
     try testing.expectEqual(img.rows(), dst.rows());
@@ -321,7 +321,7 @@ test "imgproc distanceTransform" {
 
     var gray = try Mat.init();
     defer gray.deinit();
-    imgproc.cvtColor(img, &gray, .bgra_to_gray);
+    try imgproc.cvtColor(img, &gray, .bgra_to_gray);
 
     var thresh = try Mat.init();
     defer thresh.deinit();
@@ -333,7 +333,7 @@ test "imgproc distanceTransform" {
     var labels = try Mat.init();
     defer labels.deinit();
 
-    imgproc.distanceTransform(thresh, &dst, &labels, .l2, .mask_3, .c_comp);
+    try imgproc.distanceTransform(thresh, &dst, &labels, .l2, .mask_3, .c_comp);
 
     try testing.expectEqual(false, dst.isEmpty());
     try testing.expectEqual(img.rows(), dst.rows());
@@ -353,10 +353,10 @@ test "imgproc matchTemplate" {
     defer result.deinit();
 
     var m = try Mat.init();
-    imgproc.matchTemplate(img_scene, img_template, &result, .ccoeff_normed, m);
+    try imgproc.matchTemplate(img_scene, img_template, &result, .ccoeff_normed, m);
     m.deinit();
 
-    const res = Mat.minMaxLoc(result);
+    const res = try Mat.minMaxLoc(result);
     const max_confidence = res.max_val;
     try testing.expect(max_confidence >= 0.95);
 }
@@ -378,7 +378,7 @@ test "imgproc pyrdown" {
     var dst = try Mat.init();
     defer dst.deinit();
 
-    imgproc.pyrDown(img, &dst, Size.init(dst.cols(), dst.rows()), .{});
+    try imgproc.pyrDown(img, &dst, Size.init(dst.cols(), dst.rows()), .{});
     try testing.expectEqual(false, dst.isEmpty());
     try testing.expect(@abs(@as(f64, @floatFromInt((img.cols() - 2 * dst.cols())))) < 2.0);
     try testing.expect(@abs(@as(f64, @floatFromInt((img.rows() - 2 * dst.rows())))) < 2.0);
@@ -392,7 +392,7 @@ test "imgproc pyrup" {
     var dst = try Mat.init();
     defer dst.deinit();
 
-    imgproc.pyrUp(img, &dst, Size.init(dst.cols(), dst.rows()), .{});
+    try imgproc.pyrUp(img, &dst, Size.init(dst.cols(), dst.rows()), .{});
     try testing.expectEqual(false, dst.isEmpty());
     try testing.expect(@abs(@as(f64, @floatFromInt((2 * img.cols() - dst.cols())))) < 2.0);
     try testing.expect(@abs(@as(f64, @floatFromInt((2 * img.rows() - dst.rows())))) < 2.0);
@@ -415,7 +415,7 @@ test "imgproc boxPoints" {
     var hull = try Mat.init();
     defer hull.deinit();
 
-    imgproc.convexHull(try contours.at(0), &hull, false, false);
+    try imgproc.convexHull(try contours.at(0), &hull, false, false);
 
     var hull_points: std.ArrayList(Point) = .empty;
     defer hull_points.deinit(testing.allocator);
@@ -438,7 +438,7 @@ test "imgproc boxPoints" {
     var pts = try Mat.init();
     defer pts.deinit();
 
-    imgproc.boxPoints(rect, &pts);
+    try imgproc.boxPoints(rect, &pts);
 
     try testing.expectEqual(false, pts.isEmpty());
     try testing.expectEqual(@as(i32, 4), pts.rows());
@@ -640,7 +640,7 @@ test "imgproc erode" {
     var kernel = try imgproc.getStructuringElement(.rect, Size.init(1, 1));
     defer kernel.deinit();
 
-    imgproc.erode(img, &dest, kernel);
+    try imgproc.erode(img, &dest, kernel);
     try testing.expectEqual(false, dest.isEmpty());
     try testing.expectEqual(img.rows(), dest.rows());
     try testing.expectEqual(img.cols(), dest.cols());
@@ -657,7 +657,7 @@ test "imgproc erodeWithParams" {
     var kernel = try imgproc.getStructuringElement(.rect, Size.init(1, 1));
     defer kernel.deinit();
 
-    imgproc.erodeWithParams(img, &dest, kernel, Point.init(-1, -1), 3, 0);
+    try imgproc.erodeWithParams(img, &dest, kernel, Point.init(-1, -1), 3, 0);
     try testing.expectEqual(false, dest.isEmpty());
     try testing.expectEqual(img.rows(), dest.rows());
     try testing.expectEqual(img.cols(), dest.cols());
@@ -681,7 +681,7 @@ test "imgproc morphologyEx" {
     var kernel = try imgproc.getStructuringElement(.rect, Size.init(1, 1));
     defer kernel.deinit();
 
-    imgproc.morphologyEx(img, &dest, .open, kernel);
+    try imgproc.morphologyEx(img, &dest, .open, kernel);
     try testing.expectEqual(false, dest.isEmpty());
     try testing.expectEqual(img.rows(), dest.rows());
     try testing.expectEqual(img.cols(), dest.cols());
@@ -698,7 +698,7 @@ test "imgproc morphologyExWithParams" {
     var kernel = try imgproc.getStructuringElement(.rect, Size.init(1, 1));
     defer kernel.deinit();
 
-    imgproc.morphologyExWithParams(img, &dest, .open, kernel, 2, .{ .type = .constant });
+    try imgproc.morphologyExWithParams(img, &dest, .open, kernel, 2, .{ .type = .constant });
     try testing.expectEqual(false, dest.isEmpty());
     try testing.expectEqual(img.rows(), dest.rows());
     try testing.expectEqual(img.cols(), dest.cols());
@@ -712,7 +712,7 @@ test "imgproc gaussianBlur" {
     var dst = try Mat.init();
     defer dst.deinit();
 
-    imgproc.gaussianBlur(img, &dst, Size.init(23, 23), 30, 50, .{});
+    try imgproc.gaussianBlur(img, &dst, Size.init(23, 23), 30, 50, .{});
     try testing.expectEqual(false, dst.isEmpty());
     try testing.expectEqual(img.rows(), dst.rows());
     try testing.expectEqual(img.cols(), dst.cols());
@@ -738,7 +738,7 @@ test "imgproc laplacian" {
     var dst = try Mat.init();
     defer dst.deinit();
 
-    imgproc.laplacian(img, &dst, .cv16sc1, 1, 1, 0, .{});
+    try imgproc.laplacian(img, &dst, .cv16sc1, 1, 1, 0, .{});
     try testing.expectEqual(false, dst.isEmpty());
     try testing.expectEqual(img.rows(), dst.rows());
     try testing.expectEqual(img.cols(), dst.cols());
@@ -752,7 +752,7 @@ test "imgproc scharr" {
     var dst = try Mat.init();
     defer dst.deinit();
 
-    imgproc.scharr(img, &dst, .cv16sc1, 1, 0, 0, 0, .{});
+    try imgproc.scharr(img, &dst, .cv16sc1, 1, 0, 0, 0, .{});
     try testing.expectEqual(false, dst.isEmpty());
     try testing.expectEqual(img.rows(), dst.rows());
     try testing.expectEqual(img.cols(), dst.cols());
@@ -766,7 +766,7 @@ test "imgproc medianBlur" {
     var dst = try Mat.init();
     defer dst.deinit();
 
-    imgproc.medianBlur(img, &dst, 3);
+    try imgproc.medianBlur(img, &dst, 3);
     try testing.expectEqual(false, dst.isEmpty());
     try testing.expectEqual(img.rows(), dst.rows());
     try testing.expectEqual(img.cols(), dst.cols());
@@ -780,7 +780,7 @@ test "imgproc canny" {
     var dst = try Mat.init();
     defer dst.deinit();
 
-    imgproc.canny(img, &dst, 50, 150);
+    try imgproc.canny(img, &dst, 50, 150);
     try testing.expectEqual(false, dst.isEmpty());
     try testing.expectEqual(img.rows(), dst.rows());
     try testing.expectEqual(img.cols(), dst.cols());
@@ -793,7 +793,7 @@ test "imgproc goodFeaturesToTrack & CornerSubPix" {
     var corners = try Mat.init();
     defer corners.deinit();
 
-    imgproc.goodFeaturesToTrack(img, &corners, 500, 0.01, 10);
+    try imgproc.goodFeaturesToTrack(img, &corners, 500, 0.01, 10);
     try testing.expectEqual(false, corners.isEmpty());
     try testing.expectEqual(@as(i32, 205), corners.rows());
     try testing.expectEqual(@as(i32, 1), corners.cols());
@@ -801,7 +801,7 @@ test "imgproc goodFeaturesToTrack & CornerSubPix" {
     var tc = try core.TermCriteria.init(.{ .count = true, .eps = true }, 20, 0.03);
     defer tc.deinit();
 
-    imgproc.cornerSubPix(
+    try imgproc.cornerSubPix(
         img,
         &corners,
         Size.init(10, 10),
@@ -820,8 +820,8 @@ test "imgproc grabcut" {
 
     var src = try Mat.init();
     defer src.deinit();
-    imgproc.cvtColor(img, &img, .rgba_to_bgr);
-    img.convertTo(&src, .cv8uc3);
+    try imgproc.cvtColor(img, &img, .rgba_to_bgr);
+    try img.convertTo(&src, .cv8uc3);
 
     var mask = try Mat.initSize(img.rows(), img.cols(), .cv8uc1);
     defer mask.deinit();
@@ -833,7 +833,7 @@ test "imgproc grabcut" {
 
     const r = Rect.init(0, 0, 50, 50);
 
-    imgproc.grabCut(src, &mask, r, &bgd_model, &fgd_model, 1, .eval);
+    try imgproc.grabCut(src, &mask, r, &bgd_model, &fgd_model, 1, .eval);
     try testing.expectEqual(false, bgd_model.isEmpty());
     try testing.expectEqual(false, fgd_model.isEmpty());
 }
@@ -846,7 +846,7 @@ test "imgproc houghCircles" {
     var circles = try Mat.init();
     defer circles.deinit();
 
-    imgproc.houghCircles(img, &circles, .gradient, 5.0, 5.0);
+    try imgproc.houghCircles(img, &circles, .gradient, 5.0, 5.0);
     try testing.expectEqual(false, circles.isEmpty());
     try testing.expectEqual(@as(i32, 1), circles.rows());
     try testing.expectEqual(@as(i32, 317), circles.cols());
@@ -991,7 +991,7 @@ test "imgproc houghLinesPointSet" {
     const theta_max = std.math.pi / 2.0;
     const theta_step = std.math.pi / 180.0;
 
-    imgproc.houghLinesPointSet(
+    try imgproc.houghLinesPointSet(
         img,
         &dst,
         20,
@@ -1036,7 +1036,7 @@ test "imgproc integral" {
     var tilted = try Mat.init();
     defer tilted.deinit();
 
-    imgproc.integral(img, &sum, &sqsum, &tilted);
+    try imgproc.integral(img, &sum, &sqsum, &tilted);
     try testing.expectEqual(false, sum.isEmpty());
     try testing.expectEqual(false, sqsum.isEmpty());
     try testing.expectEqual(false, tilted.isEmpty());
@@ -1064,7 +1064,7 @@ test "imgproc adaptiveThreshold" {
     var dst = try Mat.init();
     defer dst.deinit();
 
-    _ = imgproc.adaptiveThreshold(img, &dst, 255, .gaussian, .{ .type = .binary }, 11, 2);
+    try imgproc.adaptiveThreshold(img, &dst, 255, .gaussian, .{ .type = .binary }, 11, 2);
     try testing.expectEqual(false, dst.isEmpty());
     try testing.expectEqual(img.rows(), dst.rows());
     try testing.expectEqual(img.cols(), dst.cols());
@@ -1091,7 +1091,7 @@ test "imgproc circle" {
         var img = try Mat.initSize(100, 100, .cv8uc1);
         defer img.deinit();
         const white = Color.init(255, 255, 255, 0);
-        imgproc.circle(&img, Point.init(70, 70), 20, white, t.thickness);
+        try imgproc.circle(&img, Point.init(70, 70), 20, white, t.thickness);
         try testing.expectEqual(t.result, img.get(u8, @as(usize, @intCast(t.point.x)), @as(usize, @intCast(t.point.y))));
     }
 }
@@ -1132,7 +1132,7 @@ test "imgproc circleWithParams" {
         var img = try Mat.initSize(100, 100, .cv8uc1);
         defer img.deinit();
         const white = Color.init(255, 255, 255, 0);
-        imgproc.circleWithParams(&img, Point.init(70, 70), 20, white, t.thickness, .line4, t.shift);
+        try imgproc.circleWithParams(&img, Point.init(70, 70), 20, white, t.thickness, .line4, t.shift);
         try testing.expectEqual(t.result, img.get(u8, @as(usize, @intCast(t.point.x)), @as(usize, @intCast(t.point.y))));
     }
 }
@@ -1155,7 +1155,7 @@ test "imgproc rectangle" {
         var img = try Mat.initSize(100, 100, .cv8uc1);
         defer img.deinit();
         const white = Color.init(255, 255, 255, 0);
-        imgproc.rectangle(&img, Rect.init(10, 10, 70, 70), white, t.thickness);
+        try imgproc.rectangle(&img, Rect.init(10, 10, 70, 70), white, t.thickness);
         try testing.expect(img.get(u8, @as(usize, @intCast(t.point.x)), @as(usize, @intCast(t.point.y))) >= 50);
     }
 }
@@ -1186,7 +1186,7 @@ test "imgproc rectangleWithParams" {
         var img = try Mat.initSize(100, 100, .cv8uc1);
         defer img.deinit();
         const white = Color.init(255, 255, 255, 0);
-        imgproc.rectangleWithParams(&img, Rect.init(10, 10, 70, 70), white, t.thickness, .line4, t.shift);
+        try imgproc.rectangleWithParams(&img, Rect.init(10, 10, 70, 70), white, t.thickness, .line4, t.shift);
         try testing.expectEqual(@as(u8, 255), img.get(u8, @as(usize, @intCast(t.point.x)), @as(usize, @intCast(t.point.y))));
     }
 }
@@ -1199,7 +1199,7 @@ test "imgproc equlizeHist" {
     var dst = try Mat.init();
     defer dst.deinit();
 
-    imgproc.equalizeHist(img, &dst);
+    try imgproc.equalizeHist(img, &dst);
     try testing.expectEqual(false, dst.isEmpty());
     try testing.expectEqual(img.rows(), dst.rows());
     try testing.expectEqual(img.cols(), dst.cols());
@@ -1258,10 +1258,10 @@ test "imgproc drawing" {
 
     const blue = Color{ .b = 255 };
 
-    imgproc.arrowedLine(&img, Point.init(50, 50), Point.init(75, 75), blue, 3);
-    imgproc.circle(&img, Point.init(60, 60), 20, blue, 3);
-    imgproc.rectangle(&img, Rect.init(50, 50, 25, 25), blue, 3);
-    imgproc.line(&img, Point.init(50, 50), Point.init(75, 75), blue, 3);
+    try imgproc.arrowedLine(&img, Point.init(50, 50), Point.init(75, 75), blue, 3);
+    try imgproc.circle(&img, Point.init(60, 60), 20, blue, 3);
+    try imgproc.rectangle(&img, Rect.init(50, 50, 25, 25), blue, 3);
+    try imgproc.line(&img, Point.init(50, 50), Point.init(75, 75), blue, 3);
 
     try testing.expectEqual(false, img.isEmpty());
 }
@@ -1284,7 +1284,7 @@ test "imgproc putText" {
     defer img.deinit();
     try testing.expectEqual(false, img.isEmpty());
 
-    imgproc.putText(&img, "Testing", Point.init(10, 10), .{ .type = .plain }, 1.2, Color.init(0, 0, 255, 0), 2);
+    try imgproc.putText(&img, "Testing", Point.init(10, 10), .{ .type = .plain }, 1.2, Color.init(0, 0, 255, 0), 2);
 
     try testing.expectEqual(false, img.isEmpty());
 }
@@ -1294,7 +1294,7 @@ test "imgproc putTextWithParams" {
     defer img.deinit();
     try testing.expectEqual(false, img.isEmpty());
 
-    imgproc.putTextWithParams(&img, "Testing", Point.init(10, 10), .{ .type = .plain }, 1.2, Color.init(0, 0, 255, 0), 2, .line_aa, false);
+    try imgproc.putTextWithParams(&img, "Testing", Point.init(10, 10), .{ .type = .plain }, 1.2, Color.init(0, 0, 255, 0), 2, .line_aa, false);
 
     try testing.expectEqual(false, img.isEmpty());
 }
@@ -1391,7 +1391,7 @@ test "imgproc wrapaffine" {
     var dst = try src.clone();
     defer dst.deinit();
 
-    imgproc.warpAffine(src, &dst, rot, Size.init(256, 256));
+    try imgproc.warpAffine(src, &dst, rot, Size.init(256, 256));
 
     const result = dst.norm(.l2);
     try testing.expectEqual(@as(f64, 0), result);
@@ -1405,7 +1405,7 @@ test "imgproc wrapaffineWithParams" {
     var dst = try src.clone();
     defer dst.deinit();
 
-    imgproc.warpAffineWithParams(
+    try imgproc.warpAffineWithParams(
         src,
         &dst,
         rot,
@@ -1433,7 +1433,7 @@ test "imgproc watershed" {
 
     var gray = try Mat.init();
     defer gray.deinit();
-    imgproc.cvtColor(src, &gray, .bgr_to_gray);
+    try imgproc.cvtColor(src, &gray, .bgr_to_gray);
 
     var img_thresh = try Mat.init();
     defer img_thresh.deinit();
