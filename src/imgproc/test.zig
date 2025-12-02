@@ -1444,7 +1444,7 @@ test "imgproc watershed" {
 
     _ = imgproc.connectedComponents(img_thresh, &markers);
 
-    imgproc.watershed(src, &markers);
+    try imgproc.watershed(src, &markers);
     try testing.expectEqual(false, markers.isEmpty());
     try testing.expectEqual(src.rows(), markers.rows());
     try testing.expectEqual(src.cols(), markers.cols());
@@ -1477,7 +1477,7 @@ test "imgproc applyColorMap" {
     for (tests) |tt| {
         var dst = try src.clone();
         defer dst.deinit();
-        imgproc.applyColorMap(src, &dst, tt.colormap);
+        try imgproc.applyColorMap(src, &dst, tt.colormap);
         const result = dst.norm(.l2);
         try testing.expectEqual(tt.want, result);
     }
@@ -1492,7 +1492,7 @@ test "imgproc applyCustomColorMap" {
 
     var dst = try src.clone();
     defer dst.deinit();
-    imgproc.applyCustomColorMap(src, &dst, applyCustomColorMap);
+    try imgproc.applyCustomColorMap(src, &dst, applyCustomColorMap);
     const result = dst.norm(.l2);
     try testing.expectEqual(@as(f64, 0), result);
 }
@@ -1689,7 +1689,7 @@ test "imgproc warpPerspective" {
     var dst = try Mat.init();
     defer dst.deinit();
 
-    imgproc.warpPerspective(img, &dst, m, Size.init(w, h));
+    try imgproc.warpPerspective(img, &dst, m, Size.init(w, h));
 
     try testing.expectEqual(w, dst.cols());
     try testing.expectEqual(h, dst.rows());
@@ -1729,7 +1729,7 @@ test "imgproc wrapPerspectiveWithParams" {
     var dst = try Mat.init();
     defer dst.deinit();
 
-    imgproc.warpPerspectiveWithParams(img, &dst, m, Size.init(w, h), .{ .type = .linear }, .{ .type = .constant }, Color{});
+    try imgproc.warpPerspectiveWithParams(img, &dst, m, Size.init(w, h), .{ .type = .linear }, .{ .type = .constant }, Color{});
 
     try testing.expectEqual(w, dst.cols());
     try testing.expectEqual(h, dst.rows());
@@ -1741,7 +1741,7 @@ test "imgproc drawContours" {
 
     // Draw rectangle
     const white = Color{ .r = 255, .g = 255, .b = 255, .a = 255 };
-    imgproc.rectangle(&img, Rect.init(125, 25, 175, 75), white, 1);
+    try imgproc.rectangle(&img, Rect.init(125, 25, 175, 75), white, 1);
 
     var contours = try imgproc.findContours(img, .external, .simple);
     defer contours.deinit();
@@ -1749,7 +1749,7 @@ test "imgproc drawContours" {
     try testing.expectEqual(@as(u8, 0), img.get(u8, 23, 123));
     try testing.expectEqual(@as(u8, 206), img.get(u8, 25, 125));
 
-    imgproc.drawContours(&img, contours, -1, white, 2);
+    try imgproc.drawContours(&img, contours, -1, white, 2);
 
     // contour should be drawn with thickness = 2
     try testing.expectEqual(@as(u8, 255), img.get(u8, 24, 124));
@@ -1763,9 +1763,9 @@ test "imgproc drawContoursWithParams" {
     // Draw circle
     const white = Color{ .r = 255, .g = 255, .b = 255, .a = 255 };
     const black = Color{ .r = 0, .g = 0, .b = 0, .a = 255 };
-    imgproc.circle(&img, Point.init(100, 100), 80, white, -1);
-    imgproc.circle(&img, Point.init(100, 100), 55, black, -1);
-    imgproc.circle(&img, Point.init(100, 100), 30, white, -1);
+    try imgproc.circle(&img, Point.init(100, 100), 80, white, -1);
+    try imgproc.circle(&img, Point.init(100, 100), 55, black, -1);
+    try imgproc.circle(&img, Point.init(100, 100), 30, white, -1);
 
     var hierarchy = try Mat.init();
     defer hierarchy.deinit();
@@ -1794,7 +1794,7 @@ test "imgproc drawContoursWithParams" {
         var bg = try Mat.initSize(img.rows(), img.cols(), .cv8uc1);
         defer bg.deinit();
 
-        imgproc.drawContoursWithParams(&bg, contours, -1, white, 1, c.line_type, hierarchy, 0, Point.init(0, 0));
+        try imgproc.drawContoursWithParams(&bg, contours, -1, white, 1, c.line_type, hierarchy, 0, Point.init(0, 0));
 
         if (bg.get(u8, 22, 88) != c.expect_uchar) {
             try testing.expectEqual(c.expect_uchar, bg.get(u8, 22, 88));
@@ -1825,7 +1825,7 @@ test "imgproc ellipse" {
         defer img.deinit();
 
         const white = Color{ .r = 255, .g = 255, .b = 255, .a = 255 };
-        imgproc.ellipse(&img, Point.init(50, 50), Point.init(25, 25), 0, 0, 360, white, tc.thickness);
+        try imgproc.ellipse(&img, Point.init(50, 50), Point.init(25, 25), 0, 0, 360, white, tc.thickness);
 
         try testing.expectEqual(@as(u8, 255), img.get(u8, @as(usize, @intCast(tc.point.x)), @as(usize, @intCast(tc.point.y))));
     }
@@ -1881,7 +1881,7 @@ test "imgproc ellipseWithParams" {
         defer img.deinit();
 
         const white = Color{ .r = 255, .g = 255, .b = 255, .a = 0 };
-        imgproc.ellipseWithParams(
+        try imgproc.ellipseWithParams(
             &img,
             Point.init(50, 50),
             Point.init(25, 25),

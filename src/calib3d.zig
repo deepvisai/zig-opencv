@@ -2,6 +2,7 @@ const std = @import("std");
 const c = @import("c_api.zig").c;
 const core = @import("core.zig");
 const utils = @import("utils.zig");
+const cr = @import("utils.zig").checkResult;
 const Mat = core.Mat;
 const Size = core.Size;
 const Rect = core.Rect;
@@ -109,21 +110,21 @@ pub const CalibCBFlags = packed struct(i32) {
 };
 
 pub const Fisheye = struct {
-    pub fn undistortImage(image: Mat, undistorted: *Mat, k: Mat, d: Mat) void {
-        _ = c.Fisheye_UndistortImage(
+    pub fn undistortImage(image: Mat, undistorted: *Mat, k: Mat, d: Mat) !void {
+        try cr(c.Fisheye_UndistortImage(
             image.toC(),
             undistorted.*.toC(),
             k.toC(),
             d.toC(),
-        );
+        ));
     }
 
-    pub fn undistortImageWithParams(distorted: Mat, undistorted: *Mat, k: Mat, d: Mat, k_new: Mat, size: Size) void {
-        _ = c.Fisheye_UndistortImageWithParams(distorted.toC(), undistorted.*.toC(), k.toC(), d.toC(), k_new.toC(), size.toC());
+    pub fn undistortImageWithParams(distorted: Mat, undistorted: *Mat, k: Mat, d: Mat, k_new: Mat, size: Size) !void {
+        try cr(c.Fisheye_UndistortImageWithParams(distorted.toC(), undistorted.*.toC(), k.toC(), d.toC(), k_new.toC(), size.toC()));
     }
 
-    pub fn undistortPoints(distorted: Mat, undistorted: *Mat, k: Mat, d: Mat, r: Mat, p: Mat) void {
-        _ = c.Fisheye_UndistortPoints(distorted.toC(), undistorted.*.toC(), k.toC(), d.toC(), r.toC(), p.toC());
+    pub fn undistortPoints(distorted: Mat, undistorted: *Mat, k: Mat, d: Mat, r: Mat, p: Mat) !void {
+        try cr(c.Fisheye_UndistortPoints(distorted.toC(), undistorted.*.toC(), k.toC(), d.toC(), r.toC(), p.toC()));
     }
 
     pub fn estimateNewCameraMatrixForUndistortRectify(
@@ -137,7 +138,7 @@ pub const Fisheye = struct {
         fov_scale: f64,
     ) !Mat {
         const mat = try Mat.init();
-        _ = c.Fisheye_EstimateNewCameraMatrixForUndistortRectify(
+        try cr(c.Fisheye_EstimateNewCameraMatrixForUndistortRectify(
             k.toC(),
             d.toC(),
             img_size.toC(),
@@ -146,7 +147,7 @@ pub const Fisheye = struct {
             balance,
             new_size.toC(),
             fov_scale,
-        );
+        ));
         return mat;
     }
 };
@@ -165,8 +166,8 @@ pub fn initUndistortRectifyMap(
     m1type: core.Mat.MatType,
     map1: Mat,
     map2: Mat,
-) void {
-    _ = c.InitUndistortRectifyMap(
+) !void {
+    try cr(c.InitUndistortRectifyMap(
         camera_matrix.toC(),
         dist_coeffs.toC(),
         r.toC(),
@@ -175,7 +176,7 @@ pub fn initUndistortRectifyMap(
         @intFromEnum(m1type),
         map1.toC(),
         map2.toC(),
-    );
+    ));
 }
 
 /// GetOptimalNewCameraMatrixWithParams computes and returns the optimal new camera matrix based on the free scaling parameter.
@@ -300,8 +301,8 @@ pub fn drawChessboardCorners(
     pattern_size: Size,
     corners: Mat,
     pattern_was_found: bool,
-) void {
-    _ = c.DrawChessboardCorners(image.toC(), pattern_size.toC(), corners.toC(), pattern_was_found);
+) !void {
+    try cr(c.DrawChessboardCorners(image.toC(), pattern_size.toC(), corners.toC(), pattern_was_found));
 }
 
 /// EstimateAffinePartial2D computes an optimal limited affine transformation

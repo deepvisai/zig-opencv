@@ -2,6 +2,7 @@ const std = @import("std");
 const c = @import("c_api.zig").c;
 const core = @import("core.zig");
 const utils = @import("utils.zig");
+const cr = @import("utils.zig").checkResult;
 const ensureFileExists = utils.ensureFileExists;
 const Mat = core.Mat;
 const STDVector = core.STDVector;
@@ -208,7 +209,7 @@ pub fn imEncode(file_ext: FileExt, img: Mat, allocator: std.mem.Allocator) !std.
     const cvp = &c_vector;
     STDVector.init(cvp);
     defer STDVector.deinit(cvp);
-    c.Image_IMEncode(@as([*]const u8, @ptrCast(file_ext.toString())), img.ptr, cvp);
+    try cr(c.Image_IMEncode(@as([*]const u8, @ptrCast(file_ext.toString())), img.ptr, cvp));
     const data = STDVector.data(cvp);
     const len = STDVector.len(cvp);
     var buf = try std.ArrayList(u8).initCapacity(allocator, len);
@@ -245,7 +246,7 @@ pub fn imEncodeWithParams(file_ext: FileExt, img: Mat, comptime params: []const 
     const cvp = &c_vector;
     STDVector.init(cvp);
     defer STDVector.deinit(cvp);
-    c.Image_IMEncode_WithParams(@as([*]const u8, @ptrCast(file_ext.toString())), img.ptr, c_params, cvp);
+    try cr(c.Image_IMEncode_WithParams(@as([*]const u8, @ptrCast(file_ext.toString())), img.ptr, c_params, cvp));
     const data = STDVector.data(cvp);
     const len = STDVector.len(cvp);
     var buf = try std.ArrayList(u8).initCapacity(allocator, len);

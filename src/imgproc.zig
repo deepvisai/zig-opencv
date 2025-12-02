@@ -458,8 +458,8 @@ pub const CLAHE = struct {
     /// For further details, please see:
     /// https://docs.opencv.org/master/d6/db6/classcv_1_1CLAHE.html#a4e92e0e427de21be8d1fae8dcd862c5e
     ///
-    pub fn apply(self: Self, src: Mat, dst: *Mat) void {
-        c.CLAHE_Apply(self.ptr, src.toC(), dst.toC());
+    pub fn apply(self: Self, src: Mat, dst: *Mat) !void {
+        try cr(c.CLAHE_Apply(self.ptr, src.toC(), dst.toC()));
     }
 };
 
@@ -480,7 +480,7 @@ pub fn approxPolyDP(curve: PointVector, epsilon: f64, closed: bool) !PointVector
 /// http://docs.opencv.org/master/d7/d1b/group__imgproc__misc.html#ga4e0972be5de079fed4e3a10e24ef5ef0
 ///
 pub fn cvtColor(src: Mat, dst: *Mat, code: ColorConversionCode) void {
-    c.CvtColor(src.ptr, dst.*.ptr, @intFromEnum(code));
+    try cr(c.CvtColor(src.ptr, dst.*.ptr, @intFromEnum(code)));
 }
 
 /// EqualizeHist normalizes the brightness and increases the contrast of the image.
@@ -488,7 +488,7 @@ pub fn cvtColor(src: Mat, dst: *Mat, code: ColorConversionCode) void {
 /// For further details, please see:
 /// https://docs.opencv.org/master/d6/dc7/group__imgproc__hist.html#ga7e54091f0c937d49bf84152a16f76d6e
 pub fn equalizeHist(src: Mat, dst: *Mat) void {
-    return c.EqualizeHist(src.ptr, dst.*.ptr);
+    try cr(c.EqualizeHist(src.ptr, dst.*.ptr));
 }
 
 /// CalcHist Calculates a histogram of a set of images
@@ -510,7 +510,7 @@ pub fn calcHist(mats: []Mat, chans: []i32, mask: Mat, hist: *Mat, sz: []i32, rng
         .length = @as(i32, @intCast(rng.len)),
     };
 
-    c.CalcHist(c_mat, c_chans, mask.ptr, hist.*.ptr, c_sz, c_rng, acc);
+    try cr(c.CalcHist(c_mat, c_chans, mask.ptr, hist.*.ptr, c_sz, c_rng, acc));
 }
 /// CompareHist Compares two histograms.
 ///
@@ -530,7 +530,7 @@ pub fn calcBackProject(mats: []Mat, chans: []i32, hist: *Mat, backProject: Mat, 
         .val = @as([*]f32, @ptrCast(rng.ptr)),
         .length = @as(i32, @intCast(rng.len)),
     };
-    c.CalcBackProject(c_mats, c_chans, hist.*.ptr, backProject.ptr, c_rng, uniform);
+    try cr(c.CalcBackProject(c_mats, c_chans, hist.*.ptr, backProject.ptr, c_rng, uniform));
 }
 
 /// ConvexHull finds the convex hull of a point set.
@@ -538,8 +538,8 @@ pub fn calcBackProject(mats: []Mat, chans: []i32, hist: *Mat, backProject: Mat, 
 /// For further details, please see:
 /// https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#ga014b28e56cb8854c0de4a211cb2be656
 ///
-pub fn convexHull(points: PointVector, hull: *Mat, clockwise: bool, return_points: bool) void {
-    c.ConvexHull(points.toC(), hull.*.ptr, clockwise, return_points);
+pub fn convexHull(points: PointVector, hull: *Mat, clockwise: bool, return_points: bool) !void {
+    try cr(c.ConvexHull(points.toC(), hull.*.ptr, clockwise, return_points));
 }
 
 /// ConvexityDefects finds the convexity defects of a contour.
@@ -547,8 +547,8 @@ pub fn convexHull(points: PointVector, hull: *Mat, clockwise: bool, return_point
 /// For further details, please see:
 /// https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#gada4437098113fd8683c932e0567f47ba
 ///
-pub fn convexityDefects(points: PointVector, hull: Mat, result: *Mat) void {
-    c.ConvexityDefects(points.toC(), hull.ptr, result.*.ptr);
+pub fn convexityDefects(points: PointVector, hull: Mat, result: *Mat) !void {
+    try cr(c.ConvexityDefects(points.toC(), hull.ptr, result.*.ptr));
 }
 
 /// BilateralFilter applies a bilateral filter to an image.
@@ -556,8 +556,8 @@ pub fn convexityDefects(points: PointVector, hull: Mat, result: *Mat) void {
 /// Bilateral filtering is described here:
 /// http://www.dai.ed.ac.uk/CVonline/LOCAL_COPIES/MANDUCHI1/Bilateral_Filtering.html
 ///
-pub fn bilateralFilter(src: Mat, dst: *Mat, d: i32, sc: f64, ss: f64) void {
-    c.BilateralFilter(src.ptr, dst.*.ptr, d, sc, ss);
+pub fn bilateralFilter(src: Mat, dst: *Mat, d: i32, sc: f64, ss: f64) !void {
+    try cr(c.BilateralFilter(src.ptr, dst.*.ptr, d, sc, ss));
 }
 
 /// Blur blurs an image Mat using a normalized box filter.
@@ -565,8 +565,8 @@ pub fn bilateralFilter(src: Mat, dst: *Mat, d: i32, sc: f64, ss: f64) void {
 /// For further details, please see:
 /// https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#ga8c45db9afe636703801b0b2e440fce37
 ///
-pub fn blur(src: Mat, dst: *Mat, ps: Size) void {
-    c.Blur(src.ptr, dst.*.ptr, ps.toC());
+pub fn blur(src: Mat, dst: *Mat, ps: Size) !void {
+    try cr(c.Blur(src.ptr, dst.*.ptr, ps.toC()));
 }
 
 /// BoxFilter blurs an image using the box filter.
@@ -574,8 +574,8 @@ pub fn blur(src: Mat, dst: *Mat, ps: Size) void {
 /// For further details, please see:
 /// https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#gad533230ebf2d42509547d514f7d3fbc3
 ///
-pub fn boxFilter(src: Mat, dst: *Mat, ddepth: i32, ps: Size) void {
-    c.BoxFilter(src.ptr, dst.*.ptr, ddepth, ps.toC());
+pub fn boxFilter(src: Mat, dst: *Mat, ddepth: i32, ps: Size) !void {
+    try cr(c.BoxFilter(src.ptr, dst.*.ptr, ddepth, ps.toC()));
 }
 
 /// SqBoxFilter calculates the normalized sum of squares of the pixel values overlapping the filter.
@@ -583,8 +583,8 @@ pub fn boxFilter(src: Mat, dst: *Mat, ddepth: i32, ps: Size) void {
 /// For further details, please see:
 /// https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#ga045028184a9ef65d7d2579e5c4bff6c0
 ///
-pub fn sqBoxFilter(src: Mat, dst: *Mat, ddepth: i32, ps: Size) void {
-    c.SqBoxFilter(src.ptr, dst.*.ptr, ddepth, ps.toC());
+pub fn sqBoxFilter(src: Mat, dst: *Mat, ddepth: i32, ps: Size) !void {
+    try cr(c.SqBoxFilter(src.ptr, dst.*.ptr, ddepth, ps.toC()));
 }
 
 /// Dilate dilates an image by using a specific structuring element.
@@ -592,16 +592,16 @@ pub fn sqBoxFilter(src: Mat, dst: *Mat, ddepth: i32, ps: Size) void {
 /// For further details, please see:
 /// https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#ga4ff0f3318642c4f469d0e11f242f3b6c
 ///
-pub fn dilate(src: Mat, dst: *Mat, kernel: Mat) void {
-    c.Dilate(src.ptr, dst.*.ptr, kernel.ptr);
+pub fn dilate(src: Mat, dst: *Mat, kernel: Mat) !void {
+    try cr(c.Dilate(src.ptr, dst.*.ptr, kernel.ptr));
 }
 
 /// DilateWithParams dilates an image by using a specific structuring element.
 ///
 /// For further details, please see:
 /// https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#ga4ff0f3318642c4f469d0e11f242f3b6c
-pub fn dilateWithParams(src: Mat, dst: *Mat, kernel: Mat, anchor: Point, iterations: BorderType, border_type: BorderType, border_value: Color) void {
-    c.DilateWithParams(src.ptr, dst.*.ptr, kernel.ptr, anchor.toC(), iterations.toNum(), border_type.toNum(), border_value.toScalar().toC());
+pub fn dilateWithParams(src: Mat, dst: *Mat, kernel: Mat, anchor: Point, iterations: BorderType, border_type: BorderType, border_value: Color) !void {
+    try cr(c.DilateWithParams(src.ptr, dst.*.ptr, kernel.ptr, anchor.toC(), iterations.toNum(), border_type.toNum(), border_value.toScalar().toC()));
 }
 
 /// DistanceTransform Calculates the distance to the closest zero pixel for each pixel of the source image.
@@ -609,8 +609,8 @@ pub fn dilateWithParams(src: Mat, dst: *Mat, kernel: Mat, anchor: Point, iterati
 /// For further details, please see:
 /// https://docs.opencv.org/master/d7/d1b/group__imgproc__misc.html#ga8a0b7fdfcb7a13dde018988ba3a43042
 ///
-pub fn distanceTransform(src: Mat, dst: *Mat, labels: *Mat, distance_type: DistanceType, mask_size: DistanceTransformMask, label_type: DistanceTransformLabelType) void {
-    c.DistanceTransform(src.ptr, dst.*.ptr, labels.*.ptr, @intFromEnum(distance_type), @intFromEnum(mask_size), @intFromEnum(label_type));
+pub fn distanceTransform(src: Mat, dst: *Mat, labels: *Mat, distance_type: DistanceType, mask_size: DistanceTransformMask, label_type: DistanceTransformLabelType) !void {
+    try cr(c.DistanceTransform(src.ptr, dst.*.ptr, labels.*.ptr, @intFromEnum(distance_type), @intFromEnum(mask_size), @intFromEnum(label_type)));
 }
 
 /// Erode erodes an image by using a specific structuring element.
@@ -618,8 +618,8 @@ pub fn distanceTransform(src: Mat, dst: *Mat, labels: *Mat, distance_type: Dista
 /// For further details, please see:
 /// https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#gaeb1e0c1033e3f6b891a25d0511362aeb
 ///
-pub fn erode(src: Mat, dst: *Mat, kernel: Mat) void {
-    c.Erode(src.ptr, dst.*.ptr, kernel.ptr);
+pub fn erode(src: Mat, dst: *Mat, kernel: Mat) !void {
+    try cr(c.Erode(src.ptr, dst.*.ptr, kernel.ptr));
 }
 
 /// ErodeWithParams erodes an image by using a specific structuring element.
@@ -627,8 +627,8 @@ pub fn erode(src: Mat, dst: *Mat, kernel: Mat) void {
 /// For further details, please see:
 /// https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#gaeb1e0c1033e3f6b891a25d0511362aeb
 ///
-pub fn erodeWithParams(src: Mat, dst: *Mat, kernel: Mat, anchor: Point, iterations: i32, border_type: i32) void {
-    c.ErodeWithParams(src.ptr, dst.*.ptr, kernel.ptr, anchor.toC(), iterations, border_type);
+pub fn erodeWithParams(src: Mat, dst: *Mat, kernel: Mat, anchor: Point, iterations: i32, border_type: i32) !void {
+    try cr(c.ErodeWithParams(src.ptr, dst.*.ptr, kernel.ptr, anchor.toC(), iterations, border_type));
 }
 
 /// MatchTemplate compares a template against overlapped image regions.
@@ -636,8 +636,8 @@ pub fn erodeWithParams(src: Mat, dst: *Mat, kernel: Mat, anchor: Point, iteratio
 /// For further details, please see:
 /// https://docs.opencv.org/master/df/dfb/group__imgproc__object.html#ga586ebfb0a7fb604b35a23d85391329be
 ///
-pub fn matchTemplate(image: Mat, templ: Mat, result: *Mat, method: TemplateMatchMode, mask: Mat) void {
-    c.MatchTemplate(image.ptr, templ.ptr, result.*.ptr, @intFromEnum(method), mask.ptr);
+pub fn matchTemplate(image: Mat, templ: Mat, result: *Mat, method: TemplateMatchMode, mask: Mat) !void {
+    try cr(c.MatchTemplate(image.ptr, templ.ptr, result.*.ptr, @intFromEnum(method), mask.ptr));
 }
 
 /// Moments calculates all of the moments up to the third order of a polygon
@@ -655,8 +655,8 @@ pub fn moments(src: Mat, binary_image: bool) c.struct_Moment {
 /// For further details, please see:
 /// https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#gaf9bba239dfca11654cb7f50f889fc2ff
 ///
-pub fn pyrDown(src: Mat, dst: *Mat, dstsize: Size, border_type: BorderType) void {
-    c.PyrDown(src.ptr, dst.*.ptr, dstsize.toC(), border_type.toNum());
+pub fn pyrDown(src: Mat, dst: *Mat, dstsize: Size, border_type: BorderType) !void {
+    try cr(c.PyrDown(src.ptr, dst.*.ptr, dstsize.toC(), border_type.toNum()));
 }
 
 /// PyrUp upsamples an image and then blurs it.
@@ -664,8 +664,8 @@ pub fn pyrDown(src: Mat, dst: *Mat, dstsize: Size, border_type: BorderType) void
 /// For further details, please see:
 /// https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#gada75b59bdaaca411ed6fee10085eb784
 ///
-pub fn pyrUp(src: Mat, dst: *Mat, dstsize: Size, border_type: BorderType) void {
-    c.PyrUp(src.ptr, dst.*.ptr, dstsize.toC(), border_type.toNum());
+pub fn pyrUp(src: Mat, dst: *Mat, dstsize: Size, border_type: BorderType) !void {
+    try cr(c.PyrUp(src.ptr, dst.*.ptr, dstsize.toC(), border_type.toNum()));
 }
 
 /// BoundingRect calculates the up-right bounding rectangle of a point set.
@@ -682,8 +682,8 @@ pub fn boundingRect(pts: PointVector) Rect {
 /// For further Details, please see:
 /// https://docs.opencv.org/3.3.0/d3/dc0/group__imgproc__shape.html#gaf78d467e024b4d7936cf9397185d2f5c
 ///
-pub fn boxPoints(rect: RotatedRect, box_pts: *Mat) void {
-    c.BoxPoints(rect.toC(), box_pts.*.ptr);
+pub fn boxPoints(rect: RotatedRect, box_pts: *Mat) !void {
+    try cr(c.BoxPoints(rect.toC(), box_pts.*.ptr));
 }
 
 /// ContourArea calculates a contour area.
@@ -717,10 +717,10 @@ pub fn fitEllipse(pts: PointVector) RotatedRect {
 ///
 /// For further details, please see:
 /// https://docs.opencv.org/3.4/d3/dc0/group__imgproc__shape.html#ga8ce13c24081bbc7151e9326f412190f1
-pub fn minEnclosingCircle(pts: PointVector) struct { point: Point2f, radius: f32 } {
+pub fn minEnclosingCircle(pts: PointVector) !struct { point: Point2f, radius: f32 } {
     var c_center: c.Point2f = undefined;
     var radius: f32 = undefined;
-    c.MinEnclosingCircle(pts.toC(), @as([*]c.Point2f, @ptrCast(&c_center)), @as([*]f32, @ptrCast(&radius)));
+    try cr(c.MinEnclosingCircle(pts.toC(), @as([*]c.Point2f, @ptrCast(&c_center)), @as([*]f32, @ptrCast(&radius))));
     const center: Point2f = Point2f.initFromC(c_center);
     return .{ .point = center, .radius = radius };
 }
@@ -815,7 +815,7 @@ pub fn connectedComponentsWithStatsWithParams(src: Mat, labels: *Mat, stats: *Ma
 /// http://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#gaabe8c836e97159a9193fb0b11ac52cf1
 ///
 pub fn gaussianBlur(src: Mat, dst: *Mat, ps: Size, sigma_x: f64, sigma_y: f64, border_type: BorderType) void {
-    c.GaussianBlur(src.ptr, dst.*.ptr, ps.toC(), sigma_x, sigma_y, border_type.toNum());
+    try cr(c.GaussianBlur(src.ptr, dst.*.ptr, ps.toC(), sigma_x, sigma_y, border_type.toNum()));
 }
 
 /// GetGaussianKernel returns Gaussian filter coefficients.
@@ -839,8 +839,8 @@ pub fn getGaussianKernelWithParams(ksize: i32, sigma: f64, ktype: MatType) !Mat 
 /// For further details, please see:
 /// https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#gad78703e4c8fe703d479c1860d76429e6
 ///
-pub fn laplacian(src: Mat, dst: *Mat, d_depth: MatType, k_size: i32, scale: f64, delta: f64, border_type: BorderType) void {
-    c.Laplacian(src.ptr, dst.*.ptr, @intFromEnum(d_depth), k_size, scale, delta, border_type.toNum());
+pub fn laplacian(src: Mat, dst: *Mat, d_depth: MatType, k_size: i32, scale: f64, delta: f64, border_type: BorderType) !void {
+    try cr(c.Laplacian(src.ptr, dst.*.ptr, @intFromEnum(d_depth), k_size, scale, delta, border_type.toNum()));
 }
 
 /// Scharr calculates the first x- or y- image derivative using Scharr operator.
@@ -848,8 +848,8 @@ pub fn laplacian(src: Mat, dst: *Mat, d_depth: MatType, k_size: i32, scale: f64,
 /// For further details, please see:
 /// https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#gaa13106761eedf14798f37aa2d60404c9
 ///
-pub fn scharr(src: Mat, dst: *Mat, d_depth: MatType, dx: i32, dy: i32, scale: f64, delta: f64, border_type: BorderType) void {
-    c.Scharr(src.ptr, dst.*.ptr, @intFromEnum(d_depth), dx, dy, scale, delta, border_type.toNum());
+pub fn scharr(src: Mat, dst: *Mat, d_depth: MatType, dx: i32, dy: i32, scale: f64, delta: f64, border_type: BorderType) !void {
+    try cr(c.Scharr(src.ptr, dst.*.ptr, @intFromEnum(d_depth), dx, dy, scale, delta, border_type.toNum()));
 }
 
 /// GetStructuringElement returns a structuring element of the specified size
@@ -876,25 +876,25 @@ pub fn morphologyDefaultBorderValue() Scalar {
 ///
 /// For further details, please see:
 /// https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#ga67493776e3ad1a3df63883829375201f
-pub fn morphologyEx(src: Mat, dst: *Mat, op: MorphType, kernel: Mat) void {
-    c.MorphologyEx(src.ptr, dst.*.ptr, @intFromEnum(op), kernel.ptr);
+pub fn morphologyEx(src: Mat, dst: *Mat, op: MorphType, kernel: Mat) !void {
+    try cr(c.MorphologyEx(src.ptr, dst.*.ptr, @intFromEnum(op), kernel.ptr));
 }
 
 /// MorphologyExWithParams performs advanced morphological transformations.
 ///
 /// For further details, please see:
 /// https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#ga67493776e3ad1a3df63883829375201f
-pub fn morphologyExWithParams(src: Mat, dst: *Mat, op: MorphType, kernel: Mat, iterations: i32, border_type: BorderType) void {
+pub fn morphologyExWithParams(src: Mat, dst: *Mat, op: MorphType, kernel: Mat, iterations: i32, border_type: BorderType) !void {
     const c_pt = Point.init(-1, -1).toC();
-    c.MorphologyExWithParams(src.ptr, dst.*.ptr, @intFromEnum(op), kernel.ptr, c_pt, iterations, border_type.toNum());
+    try cr(c.MorphologyExWithParams(src.ptr, dst.*.ptr, @intFromEnum(op), kernel.ptr, c_pt, iterations, border_type.toNum()));
 }
 
 /// MedianBlur blurs an image using the median filter.
 ///
 /// For further details, please see:
 /// https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#ga564869aa33e58769b4469101aac458f9
-pub fn medianBlur(src: Mat, dst: *Mat, ksize: i32) void {
-    c.MedianBlur(src.ptr, dst.*.ptr, ksize);
+pub fn medianBlur(src: Mat, dst: *Mat, ksize: i32) !void {
+    try cr(c.MedianBlur(src.ptr, dst.*.ptr, ksize));
 }
 
 /// Canny finds edges in an image using the Canny algorithm.
@@ -908,7 +908,7 @@ pub fn medianBlur(src: Mat, dst: *Mat, ksize: i32) void {
 /// For further details, please see:
 /// http://docs.opencv.org/master/dd/d1a/group__imgproc__feature.html#ga04723e007ed888ddf11d9ba04e2232de
 pub fn canny(src: Mat, edges: *Mat, t1: f64, t2: f64) !void {
-    cr(c.Canny(src.ptr, edges.*.ptr, t1, t2));
+    try cr(c.Canny(src.ptr, edges.*.ptr, t1, t2));
 }
 
 /// CornerSubPix Refines the corner locations. The function iterates to find
@@ -918,7 +918,7 @@ pub fn canny(src: Mat, edges: *Mat, t1: f64, t2: f64) !void {
 /// https://docs.opencv.org/master/dd/d1a/group__imgproc__feature.html#ga354e0d7c86d0d9da75de9b9701a9a87e
 ///
 pub fn cornerSubPix(img: Mat, corners: *Mat, winSize: Size, zeroZone: Size, criteria: TermCriteria) !void {
-    cr(c.CornerSubPix(img.ptr, corners.*.ptr, winSize.toC(), zeroZone.toC(), criteria.toC()));
+    try cr(c.CornerSubPix(img.ptr, corners.*.ptr, winSize.toC(), zeroZone.toC(), criteria.toC()));
 }
 
 /// GoodFeaturesToTrack determines strong corners on an image. The function
@@ -928,7 +928,7 @@ pub fn cornerSubPix(img: Mat, corners: *Mat, winSize: Size, zeroZone: Size, crit
 /// https://docs.opencv.org/master/dd/d1a/group__imgproc__feature.html#ga1d6bb77486c8f92d79c8793ad995d541
 ///
 pub fn goodFeaturesToTrack(img: Mat, corners: *Mat, maxCorners: i32, quality: f64, minDist: f64) !void {
-    cr(c.GoodFeaturesToTrack(img.ptr, corners.*.ptr, maxCorners, quality, minDist));
+    try cr(c.GoodFeaturesToTrack(img.ptr, corners.*.ptr, maxCorners, quality, minDist));
 }
 
 /// Grabcut runs the GrabCut algorithm.
@@ -936,7 +936,7 @@ pub fn goodFeaturesToTrack(img: Mat, corners: *Mat, maxCorners: i32, quality: f6
 /// For further details, please see:
 /// https://docs.opencv.org/master/d7/d1b/group__imgproc__misc.html#ga909c1dda50efcbeaa3ce126be862b37f
 pub fn grabCut(img: Mat, mask: *Mat, rect: Rect, bgd_model: *Mat, fgd_model: *Mat, iter_count: i32, mode: GrabCutMode) !void {
-    cr(c.GrabCut(img.ptr, mask.*.ptr, rect.toC(), bgd_model.*.ptr, fgd_model.*.ptr, iter_count, @intFromEnum(mode)));
+    try cr(c.GrabCut(img.ptr, mask.*.ptr, rect.toC(), bgd_model.*.ptr, fgd_model.*.ptr, iter_count, @intFromEnum(mode)));
 }
 
 /// HoughCircles finds circles in a grayscale image using the Hough transform.
@@ -946,7 +946,7 @@ pub fn grabCut(img: Mat, mask: *Mat, rect: Rect, bgd_model: *Mat, fgd_model: *Ma
 /// For further details, please see:
 /// https://docs.opencv.org/master/dd/d1a/group__imgproc__feature.html#ga47849c3be0d0406ad3ca45db65a25d2d
 pub fn houghCircles(src: Mat, circles: *Mat, method: HoughMode, dp: f64, min_dist: f64) !void {
-    cr(c.HoughCircles(src.ptr, circles.*.ptr, @intFromEnum(method), dp, min_dist));
+    try cr(c.HoughCircles(src.ptr, circles.*.ptr, @intFromEnum(method), dp, min_dist));
 }
 
 /// HoughCirclesWithParams finds circles in a grayscale image using the Hough
@@ -955,7 +955,7 @@ pub fn houghCircles(src: Mat, circles: *Mat, method: HoughMode, dp: f64, min_dis
 /// For further details, please see:
 /// https://docs.opencv.org/master/dd/d1a/group__imgproc__feature.html#ga47849c3be0d0406ad3ca45db65a25d2d
 pub fn houghCirclesWithParams(src: Mat, circles: *Mat, method: HoughMode, dp: f64, min_dist: f64, param1: f64, param2: f64, min_radius: i32, max_radius: i32) !void {
-    cr(c.HoughCirclesWithParams(src.ptr, circles.*.ptr, @intFromEnum(method), dp, min_dist, param1, param2, min_radius, max_radius));
+    try cr(c.HoughCirclesWithParams(src.ptr, circles.*.ptr, @intFromEnum(method), dp, min_dist, param1, param2, min_radius, max_radius));
 }
 
 /// HoughLines implements the standard or standard multi-scale Hough transform
@@ -965,7 +965,7 @@ pub fn houghCirclesWithParams(src: Mat, circles: *Mat, method: HoughMode, dp: f6
 /// For further details, please see:
 /// http://docs.opencv.org/master/dd/d1a/group__imgproc__feature.html#ga46b4e588934f6c8dfd509cc6e0e4545a
 pub fn houghLines(src: Mat, lines: *Mat, rho: f64, theta: f64, threshold_int: i32) !void {
-    cr(c.HoughLines(src.ptr, lines.*.ptr, rho, theta, threshold_int));
+    try cr(c.HoughLines(src.ptr, lines.*.ptr, rho, theta, threshold_int));
 }
 
 /// HoughLinesP implements the probabilistic Hough transform
@@ -975,10 +975,10 @@ pub fn houghLines(src: Mat, lines: *Mat, rho: f64, theta: f64, threshold_int: i3
 /// For further details, please see:
 /// http://docs.opencv.org/master/dd/d1a/group__imgproc__feature.html#ga8618180a5948286384e3b7ca02f6feeb
 pub fn houghLinesP(src: Mat, lines: *Mat, rho: f64, theta: f64, threshold_int: i32) !void {
-    cr(c.HoughLinesP(src.ptr, lines.*.ptr, rho, theta, threshold_int));
+    try cr(c.HoughLinesP(src.ptr, lines.*.ptr, rho, theta, threshold_int));
 }
 pub fn houghLinesPWithParams(src: Mat, lines: *Mat, rho: f64, theta: f64, threshold_int: i32, minLineLength: f64, maxLineGap: f64) !void {
-    cr(c.HoughLinesPWithParams(src.ptr, lines.*.ptr, rho, theta, threshold_int, minLineLength, maxLineGap));
+    try cr(c.HoughLinesPWithParams(src.ptr, lines.*.ptr, rho, theta, threshold_int, minLineLength, maxLineGap));
 }
 // HoughLinesPointSet implements the Hough transform algorithm for line
 // detection on a set of points. For a good explanation of Hough transform, see:
@@ -997,8 +997,8 @@ pub fn houghLinesPointSet(
     min_theta: f64,
     max_theta: f64,
     theta_step: f64,
-) void {
-    c.HoughLinesPointSet(
+) !void {
+    try cr(c.HoughLinesPointSet(
         points.ptr,
         lines.*.ptr,
         lines_max,
@@ -1009,7 +1009,7 @@ pub fn houghLinesPointSet(
         min_theta,
         max_theta,
         theta_step,
-    );
+    ));
 }
 
 /// Integral calculates one or more integral images for the source image.
@@ -1017,7 +1017,7 @@ pub fn houghLinesPointSet(
 /// https://docs.opencv.org/master/d7/d1b/group__imgproc__misc.html#ga97b87bec26908237e8ba0f6e96d23e28
 ///
 pub fn integral(src: Mat, sum: *Mat, sqsum: *Mat, tilted: *Mat) !void {
-    cr(c.Integral(src.ptr, sum.*.ptr, sqsum.*.ptr, tilted.*.ptr));
+    try cr(c.Integral(src.ptr, sum.*.ptr, sqsum.*.ptr, tilted.*.ptr));
 }
 
 /// Threshold applies a fixed-level threshold to each array element.
@@ -1030,7 +1030,7 @@ pub fn threshold(src: Mat, dst: *Mat, thresh: f64, maxvalue: f64, typ: Threshold
 }
 
 pub fn adaptiveThreshold(src: Mat, dst: *Mat, max_value: f64, adaptive_type: AdaptiveThresholdType, type_: ThresholdType, block_size: i32, C: f64) !void {
-    cr(c.AdaptiveThreshold(src.ptr, dst.*.ptr, max_value, @intFromEnum(adaptive_type), type_.toNum(), block_size, C));
+    try cr(c.AdaptiveThreshold(src.ptr, dst.*.ptr, max_value, @intFromEnum(adaptive_type), type_.toNum(), block_size, C));
 }
 // ArrowedLine draws a arrow segment pointing from the first point
 // to the second one.
@@ -1039,7 +1039,7 @@ pub fn adaptiveThreshold(src: Mat, dst: *Mat, max_value: f64, adaptive_type: Ada
 // https://docs.opencv.org/master/d6/d6e/group__imgproc__draw.html#ga0a165a3ca093fd488ac709fdf10c05b2
 //
 pub fn arrowedLine(img: *Mat, pt1: Point, pt2: Point, color: Color, thickness: i32) !void {
-    cr(c.ArrowedLine(img.*.ptr, pt1.toC(), pt2.toC(), color.toScalar().toC(), thickness));
+    try cr(c.ArrowedLine(img.*.ptr, pt1.toC(), pt2.toC(), color.toScalar().toC(), thickness));
 }
 
 /// Circle draws a circle.
@@ -1048,7 +1048,7 @@ pub fn arrowedLine(img: *Mat, pt1: Point, pt2: Point, color: Color, thickness: i
 /// https://docs.opencv.org/master/d6/d6e/group__imgproc__draw.html#gaf10604b069374903dbd0f0488cb43670
 ///
 pub fn circle(img: *Mat, center: Point, radius: i32, color: Color, thickness: i32) !void {
-    cr(c.Circle(img.*.ptr, center.toC(), radius, color.toScalar().toC(), thickness));
+    try cr(c.Circle(img.*.ptr, center.toC(), radius, color.toScalar().toC(), thickness));
 }
 
 /// CircleWithParams draws a circle.
@@ -1057,7 +1057,7 @@ pub fn circle(img: *Mat, center: Point, radius: i32, color: Color, thickness: i3
 /// https://docs.opencv.org/master/d6/d6e/group__imgproc__draw.html#gaf10604b069374903dbd0f0488cb43670
 ///
 pub fn circleWithParams(img: *Mat, center: Point, radius: i32, color: Color, thickness: i32, line_type: LineType, shift: i32) !void {
-    cr(c.CircleWithParams(img.*.ptr, center.toC(), radius, color.toScalar().toC(), thickness, @intFromEnum(line_type), shift));
+    try cr(c.CircleWithParams(img.*.ptr, center.toC(), radius, color.toScalar().toC(), thickness, @intFromEnum(line_type), shift));
 }
 
 /// Ellipse draws a simple or thick elliptic arc or fills an ellipse sector.
@@ -1166,8 +1166,8 @@ pub fn getTextSizeWithBaseline(text: []const u8, font_face: HersheyFont, font_sc
 // For further details, please see:
 // http://docs.opencv.org/master/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576
 //
-pub fn putText(img: *Mat, text: []const u8, org: Point, font_face: HersheyFont, font_scale: f64, color: Color, thickness: i32) void {
-    c.PutText(img.*.ptr, @as([*]const u8, @ptrCast(text)), org.toC(), font_face.toNum(), font_scale, color.toScalar().toC(), thickness);
+pub fn putText(img: *Mat, text: []const u8, org: Point, font_face: HersheyFont, font_scale: f64, color: Color, thickness: i32) !void {
+    try cr(c.PutText(img.*.ptr, @as([*]const u8, @ptrCast(text)), org.toC(), font_face.toNum(), font_scale, color.toScalar().toC(), thickness));
 }
 
 // PutTextWithParams draws a text string.
@@ -1178,8 +1178,8 @@ pub fn putText(img: *Mat, text: []const u8, org: Point, font_face: HersheyFont, 
 // For further details, please see:
 // http://docs.opencv.org/master/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576
 //
-pub fn putTextWithParams(img: *Mat, text: []const u8, org: Point, font_face: HersheyFont, font_scale: f64, color: Color, thickness: i32, line_type: LineType, bottom_left_origin: bool) void {
-    c.PutTextWithParams(img.*.ptr, @as([*]const u8, @ptrCast(text)), org.toC(), font_face.toNum(), font_scale, color.toScalar().toC(), thickness, @intFromEnum(line_type), bottom_left_origin);
+pub fn putTextWithParams(img: *Mat, text: []const u8, org: Point, font_face: HersheyFont, font_scale: f64, color: Color, thickness: i32, line_type: LineType, bottom_left_origin: bool) !void {
+    try cr(c.PutTextWithParams(img.*.ptr, @as([*]const u8, @ptrCast(text)), org.toC(), font_face.toNum(), font_scale, color.toScalar().toC(), thickness, @intFromEnum(line_type), bottom_left_origin));
 }
 
 /// Resize resizes an image.
@@ -1191,16 +1191,16 @@ pub fn putTextWithParams(img: *Mat, text: []const u8, org: Point, font_face: Her
 ///
 /// For further details, please see:
 /// https://docs.opencv.org/master/da/d54/group__imgproc__transform.html#ga47a974309e9102f5f08231edc7e7529d
-pub fn resize(src: Mat, dst: *Mat, sz: Size, fx: f64, fy: f64, interp: InterpolationFlag) void {
-    c.Resize(src.ptr, dst.*.ptr, sz.toC(), fx, fy, interp.toNum());
+pub fn resize(src: Mat, dst: *Mat, sz: Size, fx: f64, fy: f64, interp: InterpolationFlag) !void {
+    try cr(c.Resize(src.ptr, dst.*.ptr, sz.toC(), fx, fy, interp.toNum()));
 }
 
 /// GetRectSubPix retrieves a pixel rectangle from an image with sub-pixel accuracy.
 ///
 /// For further details, please see:
 /// https://docs.opencv.org/master/da/d54/group__imgproc__transform.html#ga77576d06075c1a4b6ba1a608850cd614
-pub fn getRectSubPix(src: Mat, patch_size: Size, center: Point, dst: *Mat) void {
-    c.GetRectSubPix(src.ptr, patch_size.toC(), center.toC(), dst.*.ptr);
+pub fn getRectSubPix(src: Mat, patch_size: Size, center: Point, dst: *Mat) !void {
+    try cr(c.GetRectSubPix(src.ptr, patch_size.toC(), center.toC(), dst.*.ptr));
 }
 
 /// GetRotationMatrix2D calculates an affine matrix of 2D rotation.
@@ -1215,16 +1215,16 @@ pub fn getRotationMatrix2D(center: Point, angle: f64, scale: f64) !Mat {
 ///
 /// For further details, please see:
 /// https://docs.opencv.org/master/da/d54/group__imgproc__transform.html#ga0203d9ee5fcd28d40dbc4a1ea4451983
-pub fn warpAffine(src: Mat, dst: *Mat, rot_mat: Mat, dsize: Size) void {
-    c.WarpAffine(src.ptr, dst.*.ptr, rot_mat.ptr, dsize.toC());
+pub fn warpAffine(src: Mat, dst: *Mat, rot_mat: Mat, dsize: Size) !void {
+    try cr(c.WarpAffine(src.ptr, dst.*.ptr, rot_mat.ptr, dsize.toC()));
 }
 
 /// WarpAffineWithParams applies an affine transformation to an image.
 ///
 /// For further details, please see:
 /// https://docs.opencv.org/master/da/d54/group__imgproc__transform.html#ga0203d9ee5fcd28d40dbc4a1ea4451983
-pub fn warpAffineWithParams(src: Mat, dst: *Mat, rot_mat: Mat, dsize: Size, flags: InterpolationFlag, border_mode: BorderType, border_value: Color) void {
-    c.WarpAffineWithParams(src.ptr, dst.*.ptr, rot_mat.ptr, dsize.toC(), flags.toNum(), border_mode.toNum(), border_value.toScalar().toC());
+pub fn warpAffineWithParams(src: Mat, dst: *Mat, rot_mat: Mat, dsize: Size, flags: InterpolationFlag, border_mode: BorderType, border_value: Color) !void {
+    try cr(c.WarpAffineWithParams(src.ptr, dst.*.ptr, rot_mat.ptr, dsize.toC(), flags.toNum(), border_mode.toNum(), border_value.toScalar().toC()));
 }
 
 /// WarpPerspective applies a perspective transformation to an image.
@@ -1232,40 +1232,40 @@ pub fn warpAffineWithParams(src: Mat, dst: *Mat, rot_mat: Mat, dsize: Size, flag
 ///
 /// For further details, please see:
 /// https://docs.opencv.org/master/da/d54/group__imgproc__transform.html#gaf73673a7e8e18ec6963e3774e6a94b87
-pub fn warpPerspective(src: Mat, dst: *Mat, m: Mat, dsize: Size) void {
-    c.WarpPerspective(src.ptr, dst.*.ptr, m.ptr, dsize.toC());
+pub fn warpPerspective(src: Mat, dst: *Mat, m: Mat, dsize: Size) !void {
+    try cr(c.WarpPerspective(src.ptr, dst.*.ptr, m.ptr, dsize.toC()));
 }
 
 /// WarpPerspectiveWithParams applies a perspective transformation to an image.
 ///
 /// For further details, please see:
 /// https://docs.opencv.org/master/da/d54/group__imgproc__transform.html#gaf73673a7e8e18ec6963e3774e6a94b87
-pub fn warpPerspectiveWithParams(src: Mat, dst: *Mat, rot_mat: Mat, dsize: Size, flags: InterpolationFlag, border_mode: BorderType, border_value: Color) void {
-    c.WarpPerspectiveWithParams(src.ptr, dst.*.ptr, rot_mat.ptr, dsize.toC(), flags.toNum(), border_mode.toNum(), border_value.toScalar().toC());
+pub fn warpPerspectiveWithParams(src: Mat, dst: *Mat, rot_mat: Mat, dsize: Size, flags: InterpolationFlag, border_mode: BorderType, border_value: Color) !void {
+    try cr(c.WarpPerspectiveWithParams(src.ptr, dst.*.ptr, rot_mat.ptr, dsize.toC(), flags.toNum(), border_mode.toNum(), border_value.toScalar().toC()));
 }
 
 /// Watershed performs a marker-based image segmentation using the watershed algorithm.
 ///
 /// For further details, please see:
 /// https://docs.opencv.org/master/d7/d1b/group__imgproc__misc.html#ga3267243e4d3f95165d55a618c65ac6e1
-pub fn watershed(image: Mat, markers: *Mat) void {
-    c.Watershed(image.ptr, markers.*.ptr);
+pub fn watershed(image: Mat, markers: *Mat) !void {
+    try cr(c.Watershed(image.ptr, markers.*.ptr));
 }
 
 /// ApplyColorMap applies a GNU Octave/MATLAB equivalent colormap on a given image.
 ///
 /// For further details, please see:
 /// https://docs.opencv.org/master/d3/d50/group__imgproc__colormap.html#gadf478a5e5ff49d8aa24e726ea6f65d15
-pub fn applyColorMap(src: Mat, dst: *Mat, colormap: ColormapType) void {
-    c.ApplyColorMap(src.ptr, dst.*.ptr, @intFromEnum(colormap));
+pub fn applyColorMap(src: Mat, dst: *Mat, colormap: ColormapType) !void {
+    try cr(c.ApplyColorMap(src.ptr, dst.*.ptr, @intFromEnum(colormap)));
 }
 
 /// ApplyCustomColorMap applies a custom defined colormap on a given image.
 ///
 /// For further details, please see:
 /// https://docs.opencv.org/master/d3/d50/group__imgproc__colormap.html#gacb22288ddccc55f9bd9e6d492b409cae
-pub fn applyCustomColorMap(src: Mat, dst: *Mat, colormap: Mat) void {
-    c.ApplyCustomColorMap(src.ptr, dst.*.ptr, colormap.ptr);
+pub fn applyCustomColorMap(src: Mat, dst: *Mat, colormap: Mat) !void { 
+    try cr(c.ApplyCustomColorMap(src.ptr, dst.*.ptr, colormap.ptr));
 }
 
 /// GetPerspectiveTransform returns 3x3 perspective transformation for the
@@ -1317,8 +1317,8 @@ pub fn findHomography(src: Mat, dst: *Mat, method: HomographyMethod, ransac_repr
 ///
 /// For further details, please see:
 /// https://docs.opencv.org/master/d6/d6e/group__imgproc__draw.html#ga746c0625f1781f1ffc9056259103edbc
-pub fn drawContours(src: *Mat, contours: PointsVector, contour_idx: i32, color: Color, thickness: i32) void {
-    c.DrawContours(src.*.ptr, contours.toC(), contour_idx, color.toScalar().toC(), thickness);
+pub fn drawContours(src: *Mat, contours: PointsVector, contour_idx: i32, color: Color, thickness: i32) !void {
+    try cr(c.DrawContours(src.*.ptr, contours.toC(), contour_idx, color.toScalar().toC(), thickness));
 }
 
 /// DrawContoursWithParams draws contours outlines or filled contours.
@@ -1335,8 +1335,8 @@ pub fn drawContoursWithParams(
     hierarchy: Mat,
     max_level: i32,
     offset: Point,
-) void {
-    c.DrawContoursWithParams(
+) !void {
+    try cr(c.DrawContoursWithParams(
         src.*.ptr,
         contours.toC(),
         contour_idx,
@@ -1346,7 +1346,7 @@ pub fn drawContoursWithParams(
         hierarchy.ptr,
         max_level,
         offset.toC(),
-    );
+    ));
 }
 
 /// Sobel calculates the first, second, third, or mixed image derivatives using an extended Sobel operator
@@ -1354,8 +1354,8 @@ pub fn drawContoursWithParams(
 /// For further details, please see:
 /// https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#gacea54f142e81b6758cb6f375ce782c8d
 ///
-pub fn sobel(src: Mat, dst: *Mat, ddepth: MatType, dx: i32, dy: i32, ksize: i32, scale: f64, delta: f64, border_type: BorderType) void {
-    c.Sobel(src.ptr, dst.*.ptr, @intFromEnum(ddepth), dx, dy, ksize, scale, delta, border_type.toNum());
+pub fn sobel(src: Mat, dst: *Mat, ddepth: MatType, dx: i32, dy: i32, ksize: i32, scale: f64, delta: f64, border_type: BorderType) !void {
+    try cr(c.Sobel(src.ptr, dst.*.ptr, @intFromEnum(ddepth), dx, dy, ksize, scale, delta, border_type.toNum()));
 }
 
 /// SpatialGradient calculates the first order image derivative in both x and y using a Sobel operator.
@@ -1363,8 +1363,8 @@ pub fn sobel(src: Mat, dst: *Mat, ddepth: MatType, dx: i32, dy: i32, ksize: i32,
 /// For further details, please see:
 /// https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#ga405d03b20c782b65a4daf54d233239a2
 ///
-pub fn spatialGradient(src: Mat, dx: *Mat, dy: *Mat, ksize: MatType, border_type: BorderType) void {
-    c.SpatialGradient(src.ptr, dx.*.ptr, dy.*.ptr, @intFromEnum(ksize), border_type.toNum());
+pub fn spatialGradient(src: Mat, dx: *Mat, dy: *Mat, ksize: MatType, border_type: BorderType) !void {
+    try cr(c.SpatialGradient(src.ptr, dx.*.ptr, dy.*.ptr, @intFromEnum(ksize), border_type.toNum()));
 }
 
 /// Remap applies a generic geometrical transformation to an image.
@@ -1372,7 +1372,7 @@ pub fn spatialGradient(src: Mat, dx: *Mat, dy: *Mat, ksize: MatType, border_type
 /// For further details, please see:
 /// https://docs.opencv.org/master/da/d54/group__imgproc__transform.html#gab75ef31ce5cdfb5c44b6da5f3b908ea4
 pub fn remap(src: Mat, dst: *Mat, map1: Mat, map2: Mat, interpolation: InterpolationFlag, border_mode: BorderType, border_value: Color) void {
-    c.Remap(src.ptr, dst.*.ptr, map1.ptr, map2.ptr, interpolation.toNum(), border_mode.toNum(), border_value.toScalar().toC());
+    try cr(c.Remap(src.ptr, dst.*.ptr, map1.ptr, map2.ptr, interpolation.toNum(), border_mode.toNum(), border_value.toScalar().toC()));
 }
 
 /// Filter2D applies an arbitrary linear filter to an image.
@@ -1380,7 +1380,7 @@ pub fn remap(src: Mat, dst: *Mat, map1: Mat, map2: Mat, interpolation: Interpola
 /// For further details, please see:
 /// https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#ga27c049795ce870216ddfb366086b5a04
 pub fn filter2D(src: Mat, dst: *Mat, ddepth: i32, kernel: Mat, anchor: Point, delta: f64, border_type: BorderType) !void {
-    cr(c.Filter2D(src.ptr, dst.*.ptr, ddepth, kernel.ptr, anchor.toC(), delta, border_type.toNum()));
+    try cr(c.Filter2D(src.ptr, dst.*.ptr, ddepth, kernel.ptr, anchor.toC(), delta, border_type.toNum()));
 }
 
 /// SepFilter2D applies a separable linear filter to the image.
@@ -1388,7 +1388,7 @@ pub fn filter2D(src: Mat, dst: *Mat, ddepth: i32, kernel: Mat, anchor: Point, de
 /// For further details, please see:
 /// https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#ga910e29ff7d7b105057d1625a4bf6318d
 pub fn sepFilter2D(src: Mat, dst: *Mat, ddepth: i32, kernel_x: Mat, kernel_y: Mat, anchor: Point, delta: f64, border_type: BorderType) !void {
-    cr(c.SepFilter2D(src.ptr, dst.*.ptr, ddepth, kernel_x.ptr, kernel_y.ptr, anchor.toC(), delta, border_type.toNum()));
+    try cr(c.SepFilter2D(src.ptr, dst.*.ptr, ddepth, kernel_x.ptr, kernel_y.ptr, anchor.toC(), delta, border_type.toNum()));
 }
 
 /// LogPolar remaps an image to semilog-polar coordinates space.
@@ -1396,7 +1396,7 @@ pub fn sepFilter2D(src: Mat, dst: *Mat, ddepth: i32, kernel_x: Mat, kernel_y: Ma
 /// For further details, please see:
 /// https://docs.opencv.org/master/da/d54/group__imgproc__transform.html#gaec3a0b126a85b5ca2c667b16e0ae022d
 pub fn logPolar(src: Mat, dst: *Mat, center: Point, m: f64, flags: InterpolationFlag) !void {
-    cr(c.LogPolar(src.ptr, dst.*.ptr, center.toC(), m, flags.toNum()));
+    try cr(c.LogPolar(src.ptr, dst.*.ptr, center.toC(), m, flags.toNum()));
 }
 
 /// FitLine fits a line to a 2D or 3D point set.
@@ -1404,7 +1404,7 @@ pub fn logPolar(src: Mat, dst: *Mat, center: Point, m: f64, flags: Interpolation
 /// For further details, please see:
 /// https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#gaf849da1fdafa67ee84b1e9a23b93f91f
 pub fn fitLine(pts: PointVector, line_mat: *Mat, dist_type: DistanceType, param: f64, reps: f64, aeps: f64) !void {
-    cr(c.FitLine(pts.toC(), line_mat.*.ptr, @intFromEnum(dist_type), param, reps, aeps));
+    try cr(c.FitLine(pts.toC(), line_mat.*.ptr, @intFromEnum(dist_type), param, reps, aeps));
 }
 
 /// LinearPolar remaps an image to polar coordinates space.
@@ -1425,7 +1425,7 @@ pub fn clipLine(imgSize: Size, pt1: Point, pt2: Point) bool {
 }
 
 pub fn invertAffineTransform(src: Mat, dst: *Mat) !void {
-    cr(c.InvertAffineTransform(src.ptr, dst.*.ptr));
+    try cr(c.InvertAffineTransform(src.ptr, dst.*.ptr));
 }
 
 /// Apply phaseCorrelate.

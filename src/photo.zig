@@ -2,6 +2,7 @@ const std = @import("std");
 const c = @import("c_api.zig").c;
 const core = @import("core.zig");
 const utils = @import("utils.zig");
+const cr = @import("utils.zig").checkResult;
 const assert = std.debug.assert;
 const epnn = utils.ensurePtrNotNull;
 const Mat = core.Mat;
@@ -32,8 +33,8 @@ pub const EdgeFilter = enum(u2) {
 /// For further details, please see:
 /// https://docs.opencv.org/master/df/da0/group__photo__clone.html#ga6684f35dc669ff6196a7c340dc73b98e
 ///
-pub fn colorChange(src: Mat, mask: Mat, dst: *Mat, red_mul: f32, green_mul: f32, blue_mul: f32) void {
-    _ = c.ColorChange(src.ptr, mask.ptr, dst.*.ptr, red_mul, green_mul, blue_mul);
+pub fn colorChange(src: Mat, mask: Mat, dst: *Mat, red_mul: f32, green_mul: f32, blue_mul: f32) !void {
+    try cr(c.ColorChange(src.ptr, mask.ptr, dst.*.ptr, red_mul, green_mul, blue_mul));
 }
 
 /// SeamlessClone blend two image by Poisson Blending.
@@ -41,8 +42,8 @@ pub fn colorChange(src: Mat, mask: Mat, dst: *Mat, red_mul: f32, green_mul: f32,
 /// For further details, please see:
 /// https://docs.opencv.org/master/df/da0/group__photo__clone.html#ga2bf426e4c93a6b1f21705513dfeca49d
 ///
-pub fn seamlessClone(src: Mat, dst: *Mat, mask: Mat, p: Point, blend: Mat, flags: SeamlessCloneFlag) void {
-    _ = c.SeamlessClone(src.ptr, dst.*.ptr, mask.ptr, p.toC(), blend.ptr, @intFromEnum(flags));
+pub fn seamlessClone(src: Mat, dst: *Mat, mask: Mat, p: Point, blend: Mat, flags: SeamlessCloneFlag) !void {
+    try cr(c.SeamlessClone(src.ptr, dst.*.ptr, mask.ptr, p.toC(), blend.ptr, @intFromEnum(flags)));
 }
 
 /// IlluminationChange modifies locally the apparent illumination of an image.
@@ -50,8 +51,8 @@ pub fn seamlessClone(src: Mat, dst: *Mat, mask: Mat, p: Point, blend: Mat, flags
 /// For further details, please see:
 /// https://docs.opencv.org/master/df/da0/group__photo__clone.html#gac5025767cf2febd8029d474278e886c7
 ///
-pub fn illuminationChange(src: Mat, mask: Mat, dst: *Mat, alpha: f32, beta: f32) void {
-    _ = c.IlluminationChange(src.ptr, mask.ptr, dst.*.ptr, alpha, beta);
+pub fn illuminationChange(src: Mat, mask: Mat, dst: *Mat, alpha: f32, beta: f32) !void {
+    try cr(c.IlluminationChange(src.ptr, mask.ptr, dst.*.ptr, alpha, beta));
 }
 
 /// TextureFlattening washes out the texture of the selected region, giving its contents a flat aspect.
@@ -59,8 +60,8 @@ pub fn illuminationChange(src: Mat, mask: Mat, dst: *Mat, alpha: f32, beta: f32)
 /// For further details, please see:
 /// https://docs.opencv.org/master/df/da0/group__photo__clone.html#gad55df6aa53797365fa7cc23959a54004
 ///
-pub fn textureFlattening(src: Mat, mask: Mat, dst: *Mat, low_threshold: f32, high_threshold: f32, kernel_size: i32) void {
-    _ = c.TextureFlattening(src.ptr, mask.ptr, dst.*.ptr, low_threshold, high_threshold, kernel_size);
+pub fn textureFlattening(src: Mat, mask: Mat, dst: *Mat, low_threshold: f32, high_threshold: f32, kernel_size: i32) !void {
+    try cr(c.TextureFlattening(src.ptr, mask.ptr, dst.*.ptr, low_threshold, high_threshold, kernel_size));
 }
 
 ///     pub extern fn FastNlMeansDenoisingColoredMulti(src: struct_Mats, dst: Mat, imgToDenoiseIndex: c_int, temporalWindowSize: c_int) void;
@@ -77,7 +78,7 @@ pub fn fastNlMeansDenoisingColoredMulti(
 ) !void {
     const c_mats = try Mat.toCStructs(src);
     defer Mat.deinitCStructs(c_mats);
-    _ = c.FastNlMeansDenoisingColoredMulti(c_mats, dst.*.ptr, img_to_denoise_index, temporal_window_size);
+    try cr(c.FastNlMeansDenoisingColoredMulti(c_mats, dst.*.ptr, img_to_denoise_index, temporal_window_size));
 }
 
 /// FastNlMeansDenoisingColoredMulti denoises the selected images.
@@ -97,7 +98,7 @@ pub fn fastNlMeansDenoisingColoredMultiWithParams(
 ) !void {
     const c_mats = try Mat.toCStructs(src);
     defer Mat.deinitCStructs(c_mats);
-    _ = c.FastNlMeansDenoisingColoredMultiWithParams(
+    try cr(c.FastNlMeansDenoisingColoredMultiWithParams(
         c_mats,
         dst.*.ptr,
         img_to_denoise_index,
@@ -106,7 +107,7 @@ pub fn fastNlMeansDenoisingColoredMultiWithParams(
         h_color,
         template_window_size,
         search_window_size,
-    );
+    ));
 }
 
 /// FastNlMeansDenoising performs image denoising using Non-local Means Denoising algorithm
@@ -115,8 +116,8 @@ pub fn fastNlMeansDenoisingColoredMultiWithParams(
 /// For further details, please see:
 /// https://docs.opencv.org/4.x/d1/d79/group__photo__denoise.html#ga4c6b0031f56ea3f98f768881279ffe93
 ///
-pub fn fastNlMeansDenoising(src: Mat, dst: *Mat) void {
-    _ = c.FastNlMeansDenoising(src.ptr, dst.*.ptr);
+pub fn fastNlMeansDenoising(src: Mat, dst: *Mat) !void {
+    try cr(c.FastNlMeansDenoising(src.ptr, dst.*.ptr));
 }
 
 /// FastNlMeansDenoisingWithParams performs image denoising using Non-local Means Denoising algorithm
@@ -131,14 +132,14 @@ pub fn fastNlMeansDenoisingWithParams(
     h: f32,
     template_window_size: i32,
     search_window_size: i32,
-) void {
-    _ = c.FastNlMeansDenoisingWithParams(
+) !void {
+    try cr(c.FastNlMeansDenoisingWithParams(
         src.ptr,
         dst.*.ptr,
         h,
         template_window_size,
         search_window_size,
-    );
+    ));
 }
 
 /// FastNlMeansDenoisingColored is a modification of fastNlMeansDenoising function for colored images.
@@ -146,8 +147,8 @@ pub fn fastNlMeansDenoisingWithParams(
 /// For further details, please see:
 /// https://docs.opencv.org/4.x/d1/d79/group__photo__denoise.html#ga21abc1c8b0e15f78cd3eff672cb6c476
 ///
-pub fn fastNlMeansDenoisingColored(src: Mat, dst: *Mat) void {
-    _ = c.FastNlMeansDenoisingColored(src.ptr, dst.*.ptr);
+pub fn fastNlMeansDenoisingColored(src: Mat, dst: *Mat) !void {
+    try cr(c.FastNlMeansDenoisingColored(src.ptr, dst.*.ptr));
 }
 
 /// FastNlMeansDenoisingColoredWithParams is a modification of fastNlMeansDenoising function for colored images.
@@ -162,15 +163,15 @@ pub fn fastNlMeansDenoisingColoredWithParams(
     h_color: f32,
     template_window_size: i32,
     search_window_size: i32,
-) void {
-    _ = c.FastNlMeansDenoisingColoredWithParams(
+) !void {
+    try cr(c.FastNlMeansDenoisingColoredWithParams(
         src.ptr,
         dst.*.ptr,
         h,
         h_color,
         template_window_size,
         search_window_size,
-    );
+    ));
 }
 
 /// MergeMertens is a wrapper around the cv::MergeMertens.
@@ -227,7 +228,7 @@ pub const MergeMertens = struct {
     pub fn process(self: *Self, src: []const Mat, dst: *Mat) !void {
         const c_mats: c.struct_Mats = try Mat.toCStructs(src);
         defer Mat.deinitCStructs(c_mats);
-        _ = c.MergeMertens_Process(self.ptr, c_mats, dst.*.ptr);
+        try cr(c.MergeMertens_Process(self.ptr, c_mats, dst.*.ptr));
     }
 };
 
@@ -286,7 +287,7 @@ pub const AlignMTB = struct {
         const c_mats: c.struct_Mats = try Mat.toCStructs(src);
         defer Mat.deinitCStructs(c_mats);
         var c_dst_mats: c.struct_Mats = undefined;
-        _ = c.AlignMTB_Process(self.ptr, c_mats, &c_dst_mats);
+        try cr(c.AlignMTB_Process(self.ptr, c_mats, &c_dst_mats));
         return Mat.toArrayList(c_dst_mats, allocator);
     }
 };
@@ -296,8 +297,8 @@ pub const AlignMTB = struct {
 /// For further details, please see:
 /// https://docs.opencv.org/4.x/df/dac/group__photo__render.html#gae5930dd822c713b36f8529b21ddebd0c
 ///
-pub fn detailEnhance(src: Mat, dst: *Mat, sigma_s: f32, sigma_r: f32) void {
-    _ = c.DetailEnhance(src.ptr, dst.*.ptr, sigma_s, sigma_r);
+pub fn detailEnhance(src: Mat, dst: *Mat, sigma_s: f32, sigma_r: f32) !void {
+    try cr(c.DetailEnhance(src.ptr, dst.*.ptr, sigma_s, sigma_r));
 }
 
 /// EdgePreservingFilter filtering is the fundamental operation in image and video processing.
@@ -306,8 +307,8 @@ pub fn detailEnhance(src: Mat, dst: *Mat, sigma_s: f32, sigma_r: f32) void {
 /// For further details, please see:
 /// https://docs.opencv.org/4.x/df/dac/group__photo__render.html#gafaee2977597029bc8e35da6e67bd31f7
 ///
-pub fn edgePreservingFilter(src: Mat, dst: *Mat, flags: EdgeFilter, sigma_s: f32, sigma_r: f32) void {
-    _ = c.EdgePreservingFilter(src.ptr, dst.*.ptr, @intFromEnum(flags), sigma_s, sigma_r);
+pub fn edgePreservingFilter(src: Mat, dst: *Mat, flags: EdgeFilter, sigma_s: f32, sigma_r: f32) !void {
+    try cr(c.EdgePreservingFilter(src.ptr, dst.*.ptr, @intFromEnum(flags), sigma_s, sigma_r));
 }
 
 /// EdgePreservingFilter filtering is the fundamental operation in image and video processing.
@@ -316,8 +317,8 @@ pub fn edgePreservingFilter(src: Mat, dst: *Mat, flags: EdgeFilter, sigma_s: f32
 /// For further details, please see:
 /// https://docs.opencv.org/4.x/df/dac/group__photo__render.html#gafaee2977597029bc8e35da6e67bd31f7
 ///
-pub fn edgePreservingFilterWithKernel(src: Mat, dst: *Mat, kernel: Mat) void {
-    _ = c.EdgePreservingFilterWithKernel(src.ptr, dst.*.ptr, kernel.ptr);
+pub fn edgePreservingFilterWithKernel(src: Mat, dst: *Mat, kernel: Mat) !void {
+    try cr(c.EdgePreservingFilterWithKernel(src.ptr, dst.*.ptr, kernel.ptr));
 }
 
 /// PencilSketch pencil-like non-photorealistic line drawing.
@@ -325,8 +326,8 @@ pub fn edgePreservingFilterWithKernel(src: Mat, dst: *Mat, kernel: Mat) void {
 /// For further details, please see:
 /// https://docs.opencv.org/4.x/df/dac/group__photo__render.html#gae5930dd822c713b36f8529b21ddebd0c
 ///
-pub fn pencilSketch(src: Mat, dst1: *Mat, dst2: *Mat, sigma_s: f32, sigma_r: f32, shade_factor: f32) void {
-    _ = c.PencilSketch(src.ptr, dst1.*.ptr, dst2.*.ptr, sigma_s, sigma_r, shade_factor);
+pub fn pencilSketch(src: Mat, dst1: *Mat, dst2: *Mat, sigma_s: f32, sigma_r: f32, shade_factor: f32) !void {
+    try cr(c.PencilSketch(src.ptr, dst1.*.ptr, dst2.*.ptr, sigma_s, sigma_r, shade_factor));
 }
 
 /// Stylization aims to produce digital imagery with a wide variety of effects
@@ -337,8 +338,8 @@ pub fn pencilSketch(src: Mat, dst1: *Mat, dst2: *Mat, sigma_s: f32, sigma_r: f32
 /// For further details, please see:
 /// https://docs.opencv.org/4.x/df/dac/group__photo__render.html#gacb0f7324017df153d7b5d095aed53206
 ///
-pub fn stylization(src: Mat, dst: *Mat, sigma_s: f32, sigma_r: f32) void {
-    _ = c.Stylization(src.ptr, dst.*.ptr, sigma_s, sigma_r);
+pub fn stylization(src: Mat, dst: *Mat, sigma_s: f32, sigma_r: f32) !void {
+    try cr(c.Stylization(src.ptr, dst.*.ptr, sigma_s, sigma_r));
 }
 
 const testing = std.testing;
@@ -353,7 +354,7 @@ test "photo colorchange" {
     var mask = try src.clone();
     defer mask.deinit();
 
-    colorChange(src, mask, &dst, 1.5, 1.5, 1.5);
+    try colorChange(src, mask, &dst, 1.5, 1.5, 1.5);
 
     try testing.expectEqual(false, dst.isEmpty());
     try testing.expectEqual(@as(i32, 20), dst.rows());
@@ -374,7 +375,7 @@ test "photo seamlessClone" {
     defer blend.deinit();
 
     const center = Point.init(@divExact(dst.rows(), 2), @divExact(dst.cols(), 2));
-    seamlessClone(src, &dst, mask, center, blend, .normal_clone);
+    try seamlessClone(src, &dst, mask, center, blend, .normal_clone);
 
     try testing.expectEqual(false, blend.isEmpty());
     try testing.expectEqual(@as(i32, 20), dst.rows());
@@ -393,7 +394,7 @@ test "photo illumination change" {
     var dst = try Mat.initSize(20, 20, .cv8uc3);
     defer dst.deinit();
 
-    illuminationChange(src, mask, &dst, 0.2, 0.4);
+    try illuminationChange(src, mask, &dst, 0.2, 0.4);
 
     try testing.expectEqual(false, dst.isEmpty());
     try testing.expectEqual(@as(i32, 20), dst.rows());
@@ -410,7 +411,7 @@ test "photo textureFlattening" {
     var dst = try Mat.initSize(20, 20, .cv8uc3);
     defer dst.deinit();
 
-    textureFlattening(src, mask, &dst, 30, 45, 3);
+    try textureFlattening(src, mask, &dst, 30, 45, 3);
 
     try testing.expectEqual(false, dst.isEmpty());
     try testing.expectEqual(@as(i32, 20), dst.rows());
@@ -492,7 +493,7 @@ test "photo fastNlMeansDenoising" {
     var dst = try Mat.init();
     defer dst.deinit();
 
-    fastNlMeansDenoising(img, &dst);
+    try fastNlMeansDenoising(img, &dst);
 
     try testing.expectEqual(false, dst.isEmpty());
     try testing.expectEqual(img.rows(), dst.rows());
@@ -507,7 +508,7 @@ test "photo FastNlMeansDenoisingColoredMultiWithParams" {
     var dst = try Mat.init();
     defer dst.deinit();
 
-    fastNlMeansDenoisingWithParams(img, &dst, 3, 7, 21);
+    try fastNlMeansDenoisingWithParams(img, &dst, 3, 7, 21);
 
     try testing.expectEqual(false, dst.isEmpty());
     try testing.expectEqual(img.rows(), dst.rows());
@@ -522,7 +523,7 @@ test "photo fastNlMeansDenoisingColored" {
     var dst = try Mat.init();
     defer dst.deinit();
 
-    fastNlMeansDenoisingColored(img, &dst);
+    try fastNlMeansDenoisingColored(img, &dst);
 
     try testing.expectEqual(false, dst.isEmpty());
     try testing.expectEqual(img.rows(), dst.rows());
@@ -537,7 +538,7 @@ test "photo fastNlMeansDenoisingColoredWithParams" {
     var dst = try Mat.init();
     defer dst.deinit();
 
-    fastNlMeansDenoisingColoredWithParams(img, &dst, 3, 3, 7, 21);
+    try fastNlMeansDenoisingColoredWithParams(img, &dst, 3, 3, 7, 21);
 
     try testing.expectEqual(false, dst.isEmpty());
     try testing.expectEqual(img.rows(), dst.rows());
@@ -551,7 +552,7 @@ test "photo detailEnhance" {
     var dst = try Mat.init();
     defer dst.deinit();
 
-    detailEnhance(src, &dst, 100, 0.5);
+    try detailEnhance(src, &dst, 100, 0.5);
 
     try testing.expectEqual(false, dst.isEmpty());
     try testing.expectEqual(src.rows(), dst.rows());
@@ -565,7 +566,7 @@ test "photo edgePreservingFilter" {
     var dst = try Mat.init();
     defer dst.deinit();
 
-    edgePreservingFilter(src, &dst, .recurs_filter, 100, 0.5);
+    try edgePreservingFilter(src, &dst, .recurs_filter, 100, 0.5);
 
     try testing.expectEqual(false, dst.isEmpty());
     try testing.expectEqual(src.rows(), dst.rows());
@@ -582,7 +583,7 @@ test "photo pencilSketch" {
     var dst2 = try Mat.init();
     defer dst2.deinit();
 
-    pencilSketch(src, &dst1, &dst2, 100, 0.5, 0.5);
+    try pencilSketch(src, &dst1, &dst2, 100, 0.5, 0.5);
 
     try testing.expectEqual(false, dst1.isEmpty());
     try testing.expectEqual(src.rows(), dst1.rows());
@@ -600,7 +601,7 @@ test "photo stylization" {
     var dst = try Mat.init();
     defer dst.deinit();
 
-    stylization(src, &dst, 100, 0.5);
+    try stylization(src, &dst, 100, 0.5);
 
     try testing.expectEqual(false, dst.isEmpty());
     try testing.expectEqual(src.rows(), dst.rows());

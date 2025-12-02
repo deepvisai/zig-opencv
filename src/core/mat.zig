@@ -494,7 +494,7 @@ pub fn toC(self: Self) CSelf {
 /// https://docs.opencv.org/master/d3/d63/classcv_1_1Mat.html#a33fd5d125b4c302b0c9aa86980791a77
 ///
 pub fn copyTo(self: Self, dest: *Self) !void {
-    cr(c.Mat_CopyTo(self.ptr, dest.*.ptr));
+    try cr(c.Mat_CopyTo(self.ptr, dest.*.ptr));
 }
 
 /// CopyToWithMask copies Mat into destination Mat after applying the mask Mat.
@@ -503,7 +503,7 @@ pub fn copyTo(self: Self, dest: *Self) !void {
 /// https://docs.opencv.org/master/d3/d63/classcv_1_1Mat.html#a626fe5f96d02525e2604d2ad46dd574f
 ///
 pub fn copyToWithMask(self: Self, dest: *Self, mask: Self) !void {
-    cr(c.Mat_CopyToWithMask(self.ptr, dest.*.ptr, mask.ptr));
+    try cr(c.Mat_CopyToWithMask(self.ptr, dest.*.ptr, mask.ptr));
 }
 
 pub fn clone(self: Self) !Self {
@@ -517,10 +517,10 @@ pub fn clone(self: Self) !Self {
 // https://docs.opencv.org/master/d3/d63/classcv_1_1Mat.html#adf88c60c5b4980e05bb556080916978b
 //
 pub fn convertTo(self: Self, dst: *Self, mt: MatType) !void {
-    cr(c.Mat_ConvertTo(self.ptr, dst.*.ptr, @intFromEnum(mt)));
+    try cr(c.Mat_ConvertTo(self.ptr, dst.*.ptr, @intFromEnum(mt)));
 }
 pub fn convertToWithParams(self: Self, dst: *Self, mt: MatType, alpha: f32, beta: f32) !void {
-    cr(c.Mat_ConvertToWithParams(self.ptr, dst.*.ptr, @intFromEnum(mt), alpha, beta));
+    try cr(c.Mat_ConvertToWithParams(self.ptr, dst.*.ptr, @intFromEnum(mt), alpha, beta));
 }
 
 pub fn cols(self: Self) i32 {
@@ -729,10 +729,10 @@ pub fn divideValueInplace(self: *Self, v: anytype) void {
 
 pub fn calcMat(self: Self, op: OperationType, m: Self, dest: *Self) !void {
     _ = switch (op) {
-        .add => cr(c.Mat_Add(self.ptr, m.ptr, dest.*.ptr)),
-        .subtract => cr(c.Mat_Subtract(self.ptr, m.ptr, dest.*.ptr)),
-        .multiply => cr(c.Mat_Multiply(self.ptr, m.ptr, dest.*.ptr)),
-        .divide => cr(c.Mat_Divide(self.ptr, m.ptr, dest.*.ptr)),
+        .add => try cr(c.Mat_Add(self.ptr, m.ptr, dest.*.ptr)),
+        .subtract => try cr(c.Mat_Subtract(self.ptr, m.ptr, dest.*.ptr)),
+        .multiply => try cr(c.Mat_Multiply(self.ptr, m.ptr, dest.*.ptr)),
+        .divide => try cr(c.Mat_Divide(self.ptr, m.ptr, dest.*.ptr)),
     };
 }
 
@@ -781,7 +781,7 @@ pub fn divideMat(self: Self, m: Self, dest: *Self) void {
 /// https://docs.opencv.org/master/d2/de8/group__core__array.html#ga979d898a58d7f61c53003e162e7ad89f
 ///
 pub fn multiplyWithParams(self: Self, m: Self, scale: f64, dest: *Self) void {
-    c.Mat_MultiplyWithParams(self.ptr, m.ptr, scale, dest.*.ptr);
+    try cr(c.Mat_MultiplyWithParams(self.ptr, m.ptr, scale, dest.*.ptr));
 }
 
 // AbsDiff calculates the per-element absolute difference between two arrays
@@ -791,7 +791,7 @@ pub fn multiplyWithParams(self: Self, m: Self, scale: f64, dest: *Self) void {
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga6fef31bc8c4071cbc114a758a2b79c14
 //
 pub fn absDiff(self: Self, m: Self, dest: *Self) !void {
-    cr(c.Mat_AbsDiff(self.ptr, m.ptr, dest.*.ptr));
+    try cr(c.Mat_AbsDiff(self.ptr, m.ptr, dest.*.ptr));
 }
 
 // Eigen calculates eigenvalues and eigenvectors of a symmetric matrix.
@@ -809,7 +809,7 @@ pub fn eigen(self: Self, eigenvalues: *Self, eigenvectors: *Self) bool {
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gaf51987e03cac8d171fbd2b327cf966f6
 //
 pub fn eigenNonSymmetric(self: Self, eigenvalues: *Self, eigenvectors: *Self) !void {
-    cr(c.Mat_EigenNonSymmetric(self.ptr, eigenvalues.*.ptr, eigenvectors.*.ptr));
+    try cr(c.Mat_EigenNonSymmetric(self.ptr, eigenvalues.*.ptr, eigenvectors.*.ptr));
 }
 
 // Exp calculates the exponent of every array element.
@@ -818,7 +818,7 @@ pub fn eigenNonSymmetric(self: Self, eigenvalues: *Self, eigenvectors: *Self) !v
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga3e10108e2162c338f1b848af619f39e5
 //
 pub fn exp(self: Self, dest: *Self) !void {
-    cr(c.Mat_Exp(self.ptr, dest.*.ptr));
+    try cr(c.Mat_Exp(self.ptr, dest.*.ptr));
 }
 
 // ExtractChannel extracts a single channel from src (coi is 0-based index).
@@ -827,7 +827,7 @@ pub fn exp(self: Self, dest: *Self) !void {
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gacc6158574aa1f0281878c955bcf35642
 //
 pub fn extractChannel(self: Self, dest: *Self, coi: i32) !void {
-    cr(c.Mat_ExtractChannel(self.ptr, dest.*.ptr, coi));
+    try cr(c.Mat_ExtractChannel(self.ptr, dest.*.ptr, coi));
 }
 
 // FindNonZero returns the list of locations of non-zero pixels.
@@ -836,7 +836,7 @@ pub fn extractChannel(self: Self, dest: *Self, coi: i32) !void {
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gaed7df59a3539b4cc0fe5c9c8d7586190
 //
 pub fn findNonZero(self: Self, idx: *Self) !void {
-    cr(c.Mat_FindNonZero(self.ptr, idx.*.ptr));
+    try cr(c.Mat_FindNonZero(self.ptr, idx.*.ptr));
 }
 
 // Flip flips a 2D array around horizontal(0), vertical(1), or both axes(-1).
@@ -845,7 +845,7 @@ pub fn findNonZero(self: Self, idx: *Self) !void {
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gaca7be533e3dac7feb70fc60635adf441
 //
 pub fn flip(self: Self, dest: *Self, flipCode: i32) !void {
-    cr(c.Mat_Flip(self.ptr, dest.*.ptr, flipCode));
+    try cr(c.Mat_Flip(self.ptr, dest.*.ptr, flipCode));
 }
 
 // Gemm performs generalized matrix multiplication.
@@ -854,7 +854,7 @@ pub fn flip(self: Self, dest: *Self, flipCode: i32) !void {
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gacb6e64071dffe36434e1e7ee79e7cb35
 //
 pub fn gemm(self: Self, m1: Self, alpha: f64, m2: Self, beta: f64, dest: *Self, flags: GemmFlags) !void {
-    cr(c.Mat_Gemm(self.ptr, m1.ptr, alpha, m2.ptr, beta, dest.*.ptr, @intFromEnum(flags)));
+    try cr(c.Mat_Gemm(self.ptr, m1.ptr, alpha, m2.ptr, beta, dest.*.ptr, @intFromEnum(flags)));
 }
 
 // GetOptimalDFTSize returns the optimal Discrete Fourier Transform (DFT) size
@@ -873,7 +873,7 @@ pub fn getOptimalDFTSize(vecsize: i32) i32 {
 /// https://docs.opencv.org/master/d2/de8/group__core__array.html#gaab5ceee39e0580f879df645a872c6bf7
 ///
 pub fn hconcat(src1: Self, src2: Self, dst: *Self) !void {
-    cr(c.Mat_Hconcat(src1.ptr, src2.ptr, dst.*.ptr));
+    try cr(c.Mat_Hconcat(src1.ptr, src2.ptr, dst.*.ptr));
 }
 
 /// Vconcat applies vertical concatenation to given matrices.
@@ -882,7 +882,7 @@ pub fn hconcat(src1: Self, src2: Self, dst: *Self) !void {
 /// https://docs.opencv.org/master/d2/de8/group__core__array.html#gaab5ceee39e0580f879df645a872c6bf7
 ///
 pub fn vconcat(src1: Self, src2: Self, dst: *Self) !void {
-    cr(c.Mat_Vconcat(src1.ptr, src2.ptr, dst.*.ptr));
+    try cr(c.Mat_Vconcat(src1.ptr, src2.ptr, dst.*.ptr));
 }
 
 /// Rotate rotates a 2D array in multiples of 90 degrees
@@ -890,7 +890,7 @@ pub fn vconcat(src1: Self, src2: Self, dst: *Self) !void {
 /// For further details, please see:
 /// https://docs.opencv.org/master/d2/de8/group__core__array.html#ga4ad01c0978b0ce64baa246811deeac24
 pub fn rotate(self: Self, dest: *Self, rotation_code: RotateFlag) void {
-    c.Mat_Rotate(self.ptr, dest.*.ptr, @intFromEnum(rotation_code));
+    try cr(c.Mat_Rotate(self.ptr, dest.*.ptr, @intFromEnum(rotation_code)));
 }
 
 /// IDCT calculates the inverse Discrete Cosine Transform of a 1D or 2D array.
@@ -919,7 +919,7 @@ pub fn idft(self: Self, dest: *Self, flags: DftFlags, nonzeroRows: i32) void {
 /// https://docs.opencv.org/master/d2/de8/group__core__array.html#ga48af0ab51e36436c5d04340e036ce981
 ///
 pub fn inRange(self: Self, lowerb: Self, upperb: Self, dest: *Self) !void {
-    cr(c.Mat_InRange(self.ptr, lowerb.ptr, upperb.ptr, dest.*.ptr));
+    try cr(c.Mat_InRange(self.ptr, lowerb.ptr, upperb.ptr, dest.*.ptr));
 }
 
 /// InRangeWithScalar checks if array elements lie between the elements of two Scalars
@@ -928,7 +928,7 @@ pub fn inRange(self: Self, lowerb: Self, upperb: Self, dest: *Self) !void {
 /// https://docs.opencv.org/master/d2/de8/group__core__array.html#ga48af0ab51e36436c5d04340e036ce981
 ///
 pub fn inRangeWithScalar(self: Self, lowerb: Scalar, upperb: Scalar, dest: *Self) !void {
-    cr(c.Mat_InRangeWithScalar(self.ptr, lowerb, upperb, dest.*.ptr));
+    try cr(c.Mat_InRangeWithScalar(self.ptr, lowerb, upperb, dest.*.ptr));
 }
 
 /// InsertChannel inserts a single channel to dst (coi is 0-based index)
@@ -939,7 +939,7 @@ pub fn inRangeWithScalar(self: Self, lowerb: Scalar, upperb: Scalar, dest: *Self
 ///
 //     pub extern fn Mat_InsertChannel(src: Mat, dst: Mat, coi: c_int) void;
 pub fn insertChannel(self: Self, dest: *Self, coi: i32) !void {
-    cr(c.Mat_InsertChannel(self.ptr, dest.*.ptr, coi));
+    try cr(c.Mat_InsertChannel(self.ptr, dest.*.ptr, coi));
 }
 
 /// Invert finds the inverse or pseudo-inverse of a matrix.
@@ -976,8 +976,8 @@ pub fn kmeansPoints(pts: PointVector, k: i32, bestLabels: *Self, criteria: TermC
 /// https://docs.opencv.org/master/d2/de8/group__core__array.html#ga937ecdce4679a77168730830a955bea7
 ///
 //     pub extern fn Mat_Log(src: Mat, dst: Mat) void;
-pub fn log(self: Self, dest: *Self) void {
-    c.Mat_Log(self.ptr, dest.*.ptr);
+pub fn log(self: Self, dest: *Self) !void {
+    try cr(c.Mat_Log(self.ptr, dest.*.ptr));
 }
 
 /// Magnitude calculates the magnitude of 2D vectors.
@@ -985,8 +985,8 @@ pub fn log(self: Self, dest: *Self) void {
 /// For further details, please see:
 /// https://docs.opencv.org/master/d2/de8/group__core__array.html#ga6d3b097586bca4409873d64a90fe64c3
 ///
-pub fn magnitude(x: Self, y: Self, magnitude_: *Self) void {
-    c.Mat_Magnitude(x.ptr, y.ptr, magnitude_.*.ptr);
+pub fn magnitude(x: Self, y: Self, magnitude_: *Self) !void {
+    try cr(c.Mat_Magnitude(x.ptr, y.ptr, magnitude_.*.ptr));
 }
 
 /// Max calculates per-element maximum of two arrays or an array and a scalar.
@@ -994,8 +994,8 @@ pub fn magnitude(x: Self, y: Self, magnitude_: *Self) void {
 /// For further details, please see:
 /// https://docs.opencv.org/master/d2/de8/group__core__array.html#gacc40fa15eac0fb83f8ca70b7cc0b588d
 ///
-pub fn max(self: Self, other: Self, dest: *Self) void {
-    c.Mat_Max(self.ptr, other.ptr, dest.*.ptr);
+pub fn max(self: Self, other: Self, dest: *Self) !void {
+    try cr(c.Mat_Max(self.ptr, other.ptr, dest.*.ptr));
 }
 
 /// MeanStdDev calculates a mean and standard deviation of array elements.
@@ -1003,8 +1003,8 @@ pub fn max(self: Self, other: Self, dest: *Self) void {
 /// For further details, please see:
 /// https://docs.opencv.org/master/d2/de8/group__core__array.html#ga846c858f4004d59493d7c6a4354b301d
 ///
-pub fn meanStdDev(self: Self, dst_mean: *Self, dst_std_dev: *Self) void {
-    c.Mat_MeanStdDev(self.ptr, dst_mean.*.ptr, dst_std_dev.*.ptr);
+pub fn meanStdDev(self: Self, dst_mean: *Self, dst_std_dev: *Self) !void {
+    try cr(c.Mat_MeanStdDev(self.ptr, dst_mean.*.ptr, dst_std_dev.*.ptr));
 }
 
 /// Merge creates one multi-channel array out of several single-channel ones.
@@ -1012,10 +1012,10 @@ pub fn meanStdDev(self: Self, dst_mean: *Self, dst_std_dev: *Self) void {
 /// For further details, please see:
 /// https://docs.opencv.org/master/d2/de8/group__core__array.html#ga7d7b4d6c6ee504b30a20b1680029c7b4
 ///
-pub fn merge(mats: []Self, dest: *Self) void {
-    const c_mats = toCStructs(mats);
+pub fn merge(mats: []Self, dest: *Self) !void {
+    const c_mats = try toCStructs(mats);
     defer deinitCStructs(c_mats);
-    c.Mat_Merge(c_mats, dest.*.ptr);
+    try cr(c.Mat_Merge(c_mats, dest.*.ptr));
 }
 
 /// Min calculates per-element minimum of two arrays or an array and a scalar.
@@ -1023,8 +1023,8 @@ pub fn merge(mats: []Self, dest: *Self) void {
 /// For further details, please see:
 /// https://docs.opencv.org/master/d2/de8/group__core__array.html#ga9af368f182ee76d0463d0d8d5330b764
 ///
-pub fn min(self: Self, other: Self, dest: *Self) void {
-    c.Mat_Min(self.ptr, other.ptr, dest.*.ptr);
+pub fn min(self: Self, other: Self, dest: *Self) !void {
+    try cr(c.Mat_Min(self.ptr, other.ptr, dest.*.ptr));
 }
 
 /// AddWeighted calculates the weighted sum of two arrays.
@@ -1034,16 +1034,16 @@ pub fn min(self: Self, other: Self, dest: *Self) void {
 ///
 pub fn addMatWeighted(self: Self, alpha: f64, m: Self, beta: f64) !Self {
     const dest = self.init();
-    _ =  cr(c.Mat_AddWeighted(self.ptr, alpha, m.ptr, beta, dest.ptr));
+    try cr(c.Mat_AddWeighted(self.ptr, alpha, m.ptr, beta, dest.ptr));
     return dest;
 }
 
-pub fn bitwise(self: Self, m: Self, dest: *Self, comptime op: BitOperationType) void {
+pub fn bitwise(self: Self, m: Self, dest: *Self, comptime op: BitOperationType) !void {
     _ = switch (op) {
-        .and_ => _ = cr(c.Mat_BitwiseAnd(self.ptr, m.ptr, dest.*.ptr)),
-        .not_ => _ = cr(c.Mat_BitwiseNot(self.ptr, dest.*.ptr)),
-        .or_ => _ = cr(c.Mat_BitwiseOr(self.ptr, m.ptr, dest.*.ptr)),
-        .xor_ => _ = cr(c.Mat_BitwiseXor(self.ptr, m.ptr, dest.*.ptr)),
+        .and_ => _ = try cr(c.Mat_BitwiseAnd(self.ptr, m.ptr, dest.*.ptr)),
+        .not_ => _ = try cr(c.Mat_BitwiseNot(self.ptr, dest.*.ptr)),
+        .or_ => _ = try cr(c.Mat_BitwiseOr(self.ptr, m.ptr, dest.*.ptr)),
+        .xor_ => _ = try cr(c.Mat_BitwiseXor(self.ptr, m.ptr, dest.*.ptr)),
     };
 }
 
@@ -1054,7 +1054,7 @@ pub fn bitwise(self: Self, m: Self, dest: *Self, comptime op: BitOperationType) 
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga60b4d04b251ba5eb1392c34425497e14
 //
-pub fn bitwiseAnd(self: Self, m: Self, dest: *Self) void {
+pub fn bitwiseAnd(self: Self, m: Self, dest: *Self) !void {
     return self.bitwise(m, dest, .and_);
 }
 
@@ -1063,7 +1063,7 @@ pub fn bitwiseAnd(self: Self, m: Self, dest: *Self) void {
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga0002cf8b418479f4cb49a75442baee2f
 //
-pub fn bitwiseNot(self: Self, dest: *Self) void {
+pub fn bitwiseNot(self: Self, dest: *Self) !void {
     return self.bitwise(self, dest, .not_);
 }
 
@@ -1074,7 +1074,7 @@ pub fn bitwiseNot(self: Self, dest: *Self) void {
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gab85523db362a4e26ff0c703793a719b4
 //
 
-pub fn bitwiseOr(self: Self, m: Self, dest: *Self) void {
+pub fn bitwiseOr(self: Self, m: Self, dest: *Self) !void {
     return self.bitwise(m, dest, .or_);
 }
 
@@ -1084,16 +1084,16 @@ pub fn bitwiseOr(self: Self, m: Self, dest: *Self) void {
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga84b2d8188ce506593dcc3f8cd00e8e2c
 //
-pub fn bitwiseXor(self: Self, m: Self, dest: *Self) void {
+pub fn bitwiseXor(self: Self, m: Self, dest: *Self) !void {
     return self.bitwise(m, dest, .xor_);
 }
 
 pub fn bitwiseWithMask(self: Self, comptime op: BitOperationType, m: Self, dest: *Self, mask: Self) !void {
     _ = switch (op) {
-        .and_ => _ = cr(c.Mat_BitwiseAndWithMask(self.ptr, m.ptr, dest.*.ptr, mask.ptr)),
-        .not_ => _ = cr(c.Mat_BitwiseNotWithMask(self.ptr, dest.*.ptr, mask.ptr)),
-        .or_ => _ = cr(c.Mat_BitwiseOrWithMask(self.ptr, m.ptr, dest.*.ptr, mask.ptr)),
-        .xor_ => _ = cr(c.Mat_BitwiseXorWithMask(self.ptr, m.ptr, dest.*.ptr, mask.ptr)),
+        .and_ => _ = try cr(c.Mat_BitwiseAndWithMask(self.ptr, m.ptr, dest.*.ptr, mask.ptr)),
+        .not_ => _ = try cr(c.Mat_BitwiseNotWithMask(self.ptr, dest.*.ptr, mask.ptr)),
+        .or_ => _ = try cr(c.Mat_BitwiseOrWithMask(self.ptr, m.ptr, dest.*.ptr, mask.ptr)),
+        .xor_ => _ = try cr(c.Mat_BitwiseXorWithMask(self.ptr, m.ptr, dest.*.ptr, mask.ptr)),
     };
 }
 
@@ -1138,7 +1138,7 @@ pub fn bitwiseXorWithMask(self: Self, m: Self, dest: *Self, mask: Self) !void {
 }
 
 pub fn compare(self: Self, m: Self, dest: *Self, comptime op: CompareType) !void {
-    _ = cr(c.Mat_Compare(self.ptr, m.ptr, dest.*.ptr, @intFromEnum(op)));
+    try cr(c.Mat_Compare(self.ptr, m.ptr, dest.*.ptr, @intFromEnum(op)));
 }
 
 // BatchDistance is a naive nearest neighbor finder.
@@ -1147,7 +1147,7 @@ pub fn compare(self: Self, m: Self, dest: *Self, comptime op: CompareType) !void
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga4ba778a1c57f83233b1d851c83f5a622
 //
 pub fn batchDistance(self: Self, m: Self, dest: *Self, dtype: c_int, nidx: *Self, normType: c_int, K: c_int, mask: *Self, update: c_int, crosscheck: bool) !void {
-    cr(c.Mat_BatchDistance(self.ptr, m.ptr, dest.*.ptr, dtype, nidx.*.ptr, normType, K, mask.*.ptr, update, crosscheck));
+    try cr(c.Mat_BatchDistance(self.ptr, m.ptr, dest.*.ptr, dtype, nidx.*.ptr, normType, K, mask.*.ptr, update, crosscheck));
 }
 
 // BorderInterpolate computes the source location of an extrapolated pixel.
@@ -1165,7 +1165,7 @@ pub fn borderInterpolate(p: c_int, len: c_int, border_type: BorderType) c_int {
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga017122d912af19d7d0d2cccc2d63819f
 //
 pub fn calcCovarMatrix(samples: Self, covar: *Self, mean_: *Self, flags: CovarFlags, ctype: MatType) !void {
-    cr(c.Mat_CalcCovarMatrix(samples.ptr, covar.*.ptr, mean_.*.ptr, flags.toNum(), @intFromEnum(ctype)));
+    try cr(c.Mat_CalcCovarMatrix(samples.ptr, covar.*.ptr, mean_.*.ptr, flags.toNum(), @intFromEnum(ctype)));
 }
 
 // CartToPolar calculates the magnitude and angle of 2D vectors.
@@ -1174,7 +1174,7 @@ pub fn calcCovarMatrix(samples: Self, covar: *Self, mean_: *Self, flags: CovarFl
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gac5f92f48ec32cacf5275969c33ee837d
 //
 pub fn cartToPolar(x: Self, y: Self, magnitude_: *Self, angle: *Self, angle_in_degrees: bool) !void {
-    cr(c.Mat_CartToPolar(x.ptr, y.ptr, magnitude_.*.ptr, angle.*.ptr, angle_in_degrees));
+    try cr(c.Mat_CartToPolar(x.ptr, y.ptr, magnitude_.*.ptr, angle.*.ptr, angle_in_degrees));
 }
 
 // CheckRange checks every element of an input array for invalid values.
@@ -1200,8 +1200,8 @@ pub fn countNonZero(self: Self) i32 {
 /// For further details, please see:
 /// https://docs.opencv.org/master/d2/de8/group__core__array.html#ga85aad4d668c01fbd64825f589e3696d4
 ///
-pub fn dct(self: Self, dst: *Self, flags: DftFlags) void {
-    cr(c.Mat_DCT(self.ptr, dst.*.ptr, flags.toNum()));
+pub fn dct(self: Self, dst: *Self, flags: DftFlags) !void {
+    try cr(c.Mat_DCT(self.ptr, dst.*.ptr, flags.toNum()));
 }
 
 /// Determinant returns the determinant of a square floating-point matrix.
@@ -1220,7 +1220,7 @@ pub fn determinant(self: Self) f64 {
 /// https://docs.opencv.org/master/d2/de8/group__core__array.html#gadd6cf9baf2b8b704a11b5f04aaf4f39d
 ///
 pub fn dft(self: Self, dst: *Self, flags: DftFlags) !void {
-    cr(c.Mat_DFT(self.ptr, dst.*.ptr, flags.toNum()));
+    try cr(c.Mat_DFT(self.ptr, dst.*.ptr, flags.toNum()));
 }
 
 // CompleteSymm copies the lower or the upper half of a square matrix to its another half.
@@ -1229,7 +1229,7 @@ pub fn dft(self: Self, dst: *Self, flags: DftFlags) !void {
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gaa9d88dcd0e54b6d1af38d41f2a3e3d25
 //
 pub fn completeSymm(self: Self, lower_to_upper: bool) !void {
-    return cr(c.Mat_CompleteSymm(self.ptr, lower_to_upper));
+    try cr(c.Mat_CompleteSymm(self.ptr, lower_to_upper));
 }
 
 // ConvertScaleAbs scales, calculates absolute values, and converts the result to 8-bit.
@@ -1238,7 +1238,7 @@ pub fn completeSymm(self: Self, lower_to_upper: bool) !void {
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga3460e9c9f37b563ab9dd550c4d8c4e7d
 //
 pub fn convertScaleAbs(self: Self, dest: *Self, alpha: f64, beta: f64) !void {
-    return cr(c.Mat_ConvertScaleAbs(self.ptr, dest.*.ptr, alpha, beta));
+    try cr(c.Mat_ConvertScaleAbs(self.ptr, dest.*.ptr, alpha, beta));
 }
 
 // CopyMakeBorder forms a border around an image (applies padding).
@@ -1247,7 +1247,7 @@ pub fn convertScaleAbs(self: Self, dest: *Self, alpha: f64, beta: f64) !void {
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga2ac1049c2c3dd25c2b41bffe17658a36
 //
 pub fn copyMakeBorder(self: Self, dest: *Self, top: i32, bottom: i32, left: i32, right: i32, borderType: BorderType, value: Color) !void {
-    return cr(c.Mat_CopyMakeBorder(self.ptr, dest.*.ptr, top, bottom, left, right, borderType.toNum(), value.toScalar().toC()));
+    try cr(c.Mat_CopyMakeBorder(self.ptr, dest.*.ptr, top, bottom, left, right, borderType.toNum(), value.toScalar().toC()));
 }
 
 pub fn dataPtr(self: Self, comptime T: type) ![]T {
@@ -1309,8 +1309,8 @@ pub fn t(self: Self) Self {
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga46630ed6c0ea6254a35f447289bd7404
 //
-pub fn transpose(self: Self, dst: *Self) Self {
-    _ = c.Mat_Transpose(self.ptr, dst.*.ptr);
+pub fn transpose(self: Self, dst: *Self) !Self {
+    try cr(c.Mat_Transpose(self.ptr, dst.*.ptr));
 }
 
 // PolatToCart calculates x and y coordinates of 2D vectors from their magnitude and angle.
@@ -1318,8 +1318,8 @@ pub fn transpose(self: Self, dst: *Self) Self {
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga581ff9d44201de2dd1b40a50db93d665
 //
-pub fn polarToCart(magnitude_: Self, degree: Self, x: *Self, y: *Self, angleInDegrees: bool) void {
-    _ = c.Mat_PolarToCart(magnitude_.ptr, degree.ptr, x.*.ptr, y.*.ptr, angleInDegrees);
+pub fn polarToCart(magnitude_: Self, degree: Self, x: *Self, y: *Self, angleInDegrees: bool) !void {
+    try cr(c.Mat_PolarToCart(magnitude_.ptr, degree.ptr, x.*.ptr, y.*.ptr, angleInDegrees));
 }
 
 // Pow raises every array element to a power.
@@ -1327,8 +1327,8 @@ pub fn polarToCart(magnitude_: Self, degree: Self, x: *Self, y: *Self, angleInDe
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gaf0d056b5bd1dc92500d6f6cf6bac41ef
 //
-pub fn pow(self: Self, power: f64, dst: *Self) void {
-    _ = c.Mat_Pow(self.ptr, power, dst.*.ptr);
+pub fn pow(self: Self, power: f64, dst: *Self) !void {
+    try cr(c.Mat_Pow(self.ptr, power, dst.*.ptr));
 }
 
 // Phase calculates the rotation angle of 2D vectors.
@@ -1336,8 +1336,8 @@ pub fn pow(self: Self, power: f64, dst: *Self) void {
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga9db9ca9b4d81c3bde5677b8f64dc0137
 //
-pub fn phase(x: Self, y: Self, angle: *Self, angle_in_degrees: bool) void {
-    _ = c.Mat_Phase(x.ptr, y.ptr, angle.*.ptr, angle_in_degrees);
+pub fn phase(x: Self, y: Self, angle: *Self, angle_in_degrees: bool) !void {
+    try cr(c.Mat_Phase(x.ptr, y.ptr, angle.*.ptr, angle_in_degrees));
 }
 
 // LUT performs a look-up table transform of an array.
@@ -1348,7 +1348,7 @@ pub fn phase(x: Self, y: Self, angle: *Self, angle_in_degrees: bool) void {
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gab55b8d062b7f5587720ede032d34156f
 pub fn lut(src: Self, lut_: Self, dst: *Self) !void {
-    cr(c.LUT(src.ptr, lut_.ptr, dst.*.ptr));
+    try cr(c.LUT(src.ptr, lut_.ptr, dst.*.ptr));
 }
 
 // Sum calculates the per-channel pixel sum of an image.
@@ -1386,8 +1386,8 @@ pub fn colRange(self: Self, startcol: i32, endcol: i32) Self {
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga62286befb7cde3568ff8c7d14d5079da
 //
-pub fn patchNaNs(self: Self) void {
-    cr(c.Mat_PatchNaNs(self.ptr));
+pub fn patchNaNs(self: Self) !void {
+    try cr(c.Mat_PatchNaNs(self.ptr));
 }
 
 // RandN Fills the array with normally distributed random numbers.
@@ -1449,8 +1449,8 @@ pub fn solveCubic(self: Self, roots: *Self) bool {
 /// For further details, please see:
 /// https://docs.opencv.org/master/d2/de8/group__core__array.html#ga87eef7ee3970f86906d69a92cbf064bd
 ///
-pub fn normalize(self: Self, dst: *Self, alpha: f64, beta: f64, typ: NormType) void {
-    c.Mat_Normalize(self.ptr, dst.*.ptr, alpha, beta, @intFromEnum(typ));
+pub fn normalize(self: Self, dst: *Self, alpha: f64, beta: f64, typ: NormType) !void {
+    try cr(c.Mat_Normalize(self.ptr, dst.*.ptr, alpha, beta, @intFromEnum(typ)));
 }
 
 /// Norm calculates the absolute norm of an array.
@@ -1477,7 +1477,7 @@ pub fn normWithMats(self: Self, src2: Self, norm_type: NormType) f64 {
 /// https://docs.opencv.org/master/d2/de8/group__core__array.html#gad327659ac03e5fd6894b90025e6900a7
 ///
 pub fn perspectiveTransform(self: Self, dst: *Self, m: Self) void {
-    c.Mat_PerspectiveTransform(self.ptr, dst.*.ptr, m.ptr);
+    try cr(c.Mat_PerspectiveTransform(self.ptr, dst.*.ptr, m.ptr));
 }
 
 // SolvePoly finds the real or complex roots of a polynomial equation.
@@ -1489,8 +1489,8 @@ pub fn solvePoly(self: Self, roots: *Self, max_iters: i32) bool {
     return c.Mat_SolvePoly(self.ptr, roots.*.ptr, max_iters);
 }
 
-pub fn reduce(self: Self, dst: *Self, dim: i32, r_type: ReduceType, d_type: MatType) void {
-    c.Mat_Reduce(self.ptr, dst.*.ptr, dim, @intFromEnum(r_type), @intFromEnum(d_type));
+pub fn reduce(self: Self, dst: *Self, dim: i32, r_type: ReduceType, d_type: MatType) !void {
+    try cr(c.Mat_Reduce(self.ptr, dst.*.ptr, dim, @intFromEnum(r_type), @intFromEnum(d_type)));
 }
 
 /// Repeat fills the output array with repeated copies of the input array.
@@ -1498,8 +1498,8 @@ pub fn reduce(self: Self, dst: *Self, dim: i32, r_type: ReduceType, d_type: MatT
 /// For further details, please see:
 /// https://docs.opencv.org/master/d2/de8/group__core__array.html#ga496c3860f3ac44c40b48811333cfda2d
 ///
-pub fn repeat(self: Self, ny: i32, nx: i32, dst: *Self) void {
-    c.Mat_Repeat(self.ptr, ny, nx, dst.*.ptr);
+pub fn repeat(self: Self, ny: i32, nx: i32, dst: *Self) !void {
+    try cr(c.Mat_Repeat(self.ptr, ny, nx, dst.*.ptr));
 }
 
 /// Calculates the sum of a scaled array and another array.
@@ -1507,16 +1507,16 @@ pub fn repeat(self: Self, ny: i32, nx: i32, dst: *Self) void {
 /// For further details, please see:
 /// https://docs.opencv.org/master/d2/de8/group__core__array.html#ga9e0845db4135f55dcf20227402f00d98
 ///
-pub fn scaleAdd(self: Self, alpha: f64, src2: Self, dst: *Self) void {
-    c.Mat_ScaleAdd(self.ptr, alpha, src2.ptr, dst.*.ptr);
+pub fn scaleAdd(self: Self, alpha: f64, src2: Self, dst: *Self) !void {
+    try cr(c.Mat_ScaleAdd(self.ptr, alpha, src2.ptr, dst.*.ptr));
 }
 
 /// SetIdentity initializes a scaled identity matrix.
 /// For further details, please see:
 ///  https://docs.opencv.org/master/d2/de8/group__core__array.html#ga388d7575224a4a277ceb98ccaa327c99
 ///
-pub fn setIdentity(self: Self, s: f64) void {
-    c.Mat_SetIdentity(self.ptr, s);
+pub fn setIdentity(self: Self, s: f64) !void {
+    try cr(c.Mat_SetIdentity(self.ptr, s));
 }
 
 /// Sort sorts each row or each column of a matrix.
@@ -1524,8 +1524,8 @@ pub fn setIdentity(self: Self, s: f64) void {
 /// For further details, please see:
 /// https://docs.opencv.org/master/d2/de8/group__core__array.html#ga45dd56da289494ce874be2324856898f
 ///
-pub fn sort(self: Self, dst: *Self, flags: SortFlags) void {
-    c.Mat_Sort(self.ptr, dst.*.ptr, @intFromEnum(flags));
+pub fn sort(self: Self, dst: *Self, flags: SortFlags) !void {
+    try cr(c.Mat_Sort(self.ptr, dst.*.ptr, @intFromEnum(flags)));
 }
 
 /// SortIdx sorts each row or each column of a matrix.
@@ -1534,8 +1534,8 @@ pub fn sort(self: Self, dst: *Self, flags: SortFlags) void {
 /// For further details, please see:
 /// https://docs.opencv.org/master/d2/de8/group__core__array.html#gadf35157cbf97f3cb85a545380e383506
 ///
-pub fn sortIdx(self: Self, dst: *Self, flags: SortFlags) void {
-    c.Mat_SortIdx(self.ptr, dst.*.ptr, @intFromEnum(flags));
+pub fn sortIdx(self: Self, dst: *Self, flags: SortFlags) !void {
+    try cr(c.Mat_SortIdx(self.ptr, dst.*.ptr, @intFromEnum(flags)));
 }
 
 // Split creates an array of single channel images from a multi-channel image
@@ -1546,7 +1546,7 @@ pub fn sortIdx(self: Self, dst: *Self, flags: SortFlags) void {
 //
 pub fn split(self: Self, allocator: std.mem.Allocator) !Mats {
     var c_mats: c.struct_Mats = undefined;
-    c.Mat_Split(self.ptr, &c_mats);
+    try cr(c.Mat_Split(self.ptr, &c_mats));
     const mats = try toArrayList(c_mats, allocator);
     return .{ .list = mats };
 }
@@ -1566,8 +1566,8 @@ pub fn trace(self: Self) Scalar {
 /// For further details, please see:
 /// https://docs.opencv.org/master/d2/de8/group__core__array.html#ga393164aa54bb9169ce0a8cc44e08ff22
 ///
-pub fn transform(src: Self, dst: *Self, tm: Self) void {
-    c.Mat_Transform(src.ptr, dst.*.ptr, tm.ptr);
+pub fn transform(src: Self, dst: *Self, tm: Self) !void {
+    try cr(c.Mat_Transform(src.ptr, dst.*.ptr, tm.ptr));
 }
 
 /// MinMaxIdx finds the global minimum and maximum in an array.
@@ -1575,7 +1575,7 @@ pub fn transform(src: Self, dst: *Self, tm: Self) void {
 /// For further details, please see:
 /// https://docs.opencv.org/master/d2/de8/group__core__array.html#ga7622c466c628a75d9ed008b42250a73f
 ///
-pub fn minMaxIdx(self: Self) struct {
+pub fn minMaxIdx(self: Self) !struct {
     min_val: f64,
     max_val: f64,
     min_idx: i32,
@@ -1585,13 +1585,13 @@ pub fn minMaxIdx(self: Self) struct {
     var max_val: f64 = undefined;
     var min_idx: i32 = undefined;
     var max_idx: i32 = undefined;
-    c.Mat_MinMaxIdx(
+    try cr(c.Mat_MinMaxIdx(
         self.ptr,
         &min_val,
         &max_val,
         &min_idx,
         &max_idx,
-    );
+    ));
     return .{
         .min_val = min_val,
         .max_val = max_val,
@@ -1605,7 +1605,7 @@ pub fn minMaxIdx(self: Self) struct {
 /// For further details, please see:
 /// https://docs.opencv.org/trunk/d2/de8/group__core__array.html#gab473bf2eb6d14ff97e89b355dac20707
 ///
-pub fn minMaxLoc(self: Self) struct {
+pub fn minMaxLoc(self: Self) !struct {
     min_val: f64,
     max_val: f64,
     min_loc: Point,
@@ -1616,13 +1616,13 @@ pub fn minMaxLoc(self: Self) struct {
     var c_min_loc: c.Point = undefined;
     var c_max_loc: c.Point = undefined;
 
-    c.Mat_MinMaxLoc(
+    try cr(c.Mat_MinMaxLoc(
         self.ptr,
         &min_val,
         &max_val,
         &c_min_loc,
         &c_max_loc,
-    );
+    ));
 
     const min_loc = Point.initFromC(c_min_loc);
     const max_loc = Point.initFromC(c_max_loc);
@@ -1650,7 +1650,7 @@ pub fn mixChannels(src: []Self, dst: *[]Self, from_to: []i32) !void {
         .val = @as([*]i32, @ptrCast(from_to.ptr)),
         .length = @as(i32, @intCast(from_to.len)),
     };
-    c.Mat_MixChannels(c_src, c_dst, c_from_to);
+    try cr(c.Mat_MixChannels(c_src, c_dst, c_from_to));
 
     for (dst.*, 0..) |*d, i| {
         d.*.deinit();
@@ -1663,8 +1663,8 @@ pub fn mixChannels(src: []Self, dst: *[]Self, from_to: []i32) !void {
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga3ab38646463c59bf0ce962a9d51db64f
 //
-pub fn mulSpectrums(self: Self, src2: Self, dst: *Self, flags: DftFlags) void {
-    c.Mat_MulSpectrums(self.ptr, src2.ptr, dst.*.ptr, @intFromEnum(flags));
+pub fn mulSpectrums(self: Self, src2: Self, dst: *Self, flags: DftFlags) !void {
+    try cr(c.Mat_MulSpectrums(self.ptr, src2.ptr, dst.*.ptr, @intFromEnum(flags)));
 }
 
 pub fn toArrayList(c_mats: c.Mats, allocator: std.mem.Allocator) !Mats {

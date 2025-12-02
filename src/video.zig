@@ -2,6 +2,7 @@ const std = @import("std");
 const c = @import("c_api.zig").c;
 const core = @import("core.zig");
 const utils = @import("utils.zig");
+const cr = @import("utils.zig").checkResult;
 const assert = std.debug.assert;
 const epnn = utils.ensurePtrNotNull;
 const Mat = core.Mat;
@@ -71,8 +72,8 @@ const BackgroundSubtractorMOG2 = struct {
     /// For further details, please see:
     /// https://docs.opencv.org/master/d7/df6/classcv_1_1BackgroundSubtractor.html#aa735e76f7069b3fa9c3f32395f9ccd21
     ///
-    pub fn apply(self: *Self, src: Mat, dst: *Mat) void {
-        _ = c.BackgroundSubtractorMOG2_Apply(self.ptr, src.toC(), dst.*.toC());
+    pub fn apply(self: *Self, src: Mat, dst: *Mat) !void {
+        try cr(c.BackgroundSubtractorMOG2_Apply(self.ptr, src.toC(), dst.*.toC()));
     }
 };
 
@@ -125,8 +126,8 @@ pub const BackgroundSubtractorKNN = struct {
     /// For further details, please see:
     /// https://docs.opencv.org/master/d7/df6/classcv_1_1BackgroundSubtractor.html#aa735e76f7069b3fa9c3f32395f9ccd21
     ///
-    pub fn apply(self: *Self, src: Mat, dst: *Mat) void {
-        _ = c.BackgroundSubtractorKNN_Apply(self.ptr, src.toC(), dst.*.toC());
+    pub fn apply(self: *Self, src: Mat, dst: *Mat) !void {
+        try cr(c.BackgroundSubtractorKNN_Apply(self.ptr, src.toC(), dst.*.toC()));
     }
 };
 
@@ -160,7 +161,7 @@ pub const CalcOpticalFlow = struct {
         poly_sigma: f64,
         flags: Optflow,
     ) void {
-        _ = c.CalcOpticalFlowFarneback(
+        try cr(c.CalcOpticalFlowFarneback(
             prev_img.ptr,
             next_img.ptr,
             flow.*.ptr,
@@ -171,7 +172,7 @@ pub const CalcOpticalFlow = struct {
             poly_n,
             poly_sigma,
             @intFromEnum(flags),
-        );
+        ));
     }
 
     /// CalcOpticalFlowPyrLK calculates an optical flow for a sparse feature set using
@@ -187,15 +188,15 @@ pub const CalcOpticalFlow = struct {
         next_pts: Mat,
         status: *Mat,
         err: *Mat,
-    ) void {
-        _ = c.CalcOpticalFlowPyrLK(
+    ) !void {
+        try cr(c.CalcOpticalFlowPyrLK(
             prev_img.toC(),
             next_img.toC(),
             prev_pts.toC(),
             next_pts.toC(),
             status.*.toC(),
             err.*.toC(),
-        );
+        ));
     }
 
     /// CalcOpticalFlowPyrLKWithParams calculates an optical flow for a sparse feature set using
@@ -216,8 +217,8 @@ pub const CalcOpticalFlow = struct {
         criteria: TermCriteria,
         flags: Optflow,
         min_eig_threshold: f64,
-    ) void {
-        _ = c.CalcOpticalFlowPyrLKWithParams(
+    ) !void {
+        try cr(c.CalcOpticalFlowPyrLKWithParams(
             prev_img.toC(),
             next_img.toC(),
             prev_pts.toC(),
@@ -229,7 +230,7 @@ pub const CalcOpticalFlow = struct {
             criteria.toC(),
             @intFromEnum(flags),
             min_eig_threshold,
-        );
+        ));
     }
 };
 
@@ -386,7 +387,7 @@ test "video BackgroundSubtractorMOG2" {
     var mog2 = try BackgroundSubtractorMOG2.init();
     defer mog2.deinit();
 
-    mog2.apply(img, &dst);
+    try mog2.apply(img, &dst);
     try testing.expectEqual(false, dst.isEmpty());
 }
 
@@ -401,7 +402,7 @@ test "video BackgroundSubtractorMOG2 with params" {
     var mog2 = try BackgroundSubtractorMOG2.initWithParams(250, 8, false);
     defer mog2.deinit();
 
-    mog2.apply(img, &dst);
+    try mog2.apply(img, &dst);
     try testing.expectEqual(false, dst.isEmpty());
 }
 
@@ -416,7 +417,7 @@ test "video BackgroundSubtractorKNN" {
     var knn = try BackgroundSubtractorKNN.init();
     defer knn.deinit();
 
-    knn.apply(img, &dst);
+    try knn.apply(img, &dst);
     try testing.expectEqual(false, dst.isEmpty());
 }
 
@@ -431,7 +432,7 @@ test "video BackgroundSubtractorKNN with params" {
     var knn = try BackgroundSubtractorKNN.initWithPatams(250, 200, false);
     defer knn.deinit();
 
-    knn.apply(img, &dst);
+    try knn.apply(img, &dst);
     try testing.expectEqual(false, dst.isEmpty());
 }
 
@@ -489,10 +490,10 @@ test "video CalcOpticalFlow.pyrLK with params" {
     var corners = try Mat.init();
     defer corners.deinit();
 
-    imgproc.goodFeaturesToTrack(dst, &corners, 500, 0.01, 10);
+    try imgproc.goodFeaturesToTrack(dst, &corners, 500, 0.01, 10);
     var tc = try core.TermCriteria.init(.{ .count = true, .eps = true }, 20, 0.03);
     defer tc.deinit();
-    imgproc.cornerSubPix(
+    try imgproc.cornerSubPix(
         dst,
         &corners,
         Size.init(10, 10),
@@ -500,7 +501,7 @@ test "video CalcOpticalFlow.pyrLK with params" {
         tc,
     );
 
-    CalcOpticalFlow.pyrLK(
+    try CalcOpticalFlow.pyrLK(
         dst,
         img2,
         corners,
@@ -542,10 +543,10 @@ test "video CalcOpticalFlow.pyrLKWithParams" {
     var corners = try Mat.init();
     defer corners.deinit();
 
-    imgproc.goodFeaturesToTrack(dst, &corners, 500, 0.01, 10);
+    try imgproc.goodFeaturesToTrack(dst, &corners, 500, 0.01, 10);
     var tc = try core.TermCriteria.init(.{ .count = true, .eps = true }, 30, 0.03);
     defer tc.deinit();
-    imgproc.cornerSubPix(
+    try imgproc.cornerSubPix(
         dst,
         &corners,
         Size.init(10, 10),
@@ -553,7 +554,7 @@ test "video CalcOpticalFlow.pyrLKWithParams" {
         tc,
     );
 
-    CalcOpticalFlow.pyrLKWithParams(
+    try CalcOpticalFlow.pyrLKWithParams(
         dst,
         img2,
         corners,
@@ -579,7 +580,7 @@ test "video findTransformECC" {
 
     var test_img = try Mat.init();
     defer test_img.deinit();
-    imgproc.resize(img1, &test_img, Size.init(216, 216), 0, 0, .{ .type = .linear });
+    try imgproc.resize(img1, &test_img, Size.init(216, 216), 0, 0, .{ .type = .linear });
 
     var translation_ground = try Mat.initEye(2, 3, .cv32fc1);
     defer translation_ground.deinit();
@@ -588,7 +589,7 @@ test "video findTransformECC" {
 
     var warped_img = try Mat.init();
     defer warped_img.deinit();
-    imgproc.warpAffineWithParams(
+    try imgproc.warpAffineWithParams(
         test_img,
         &warped_img,
         translation_ground,

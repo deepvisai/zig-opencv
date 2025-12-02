@@ -301,11 +301,11 @@ pub const VideoCapture = struct {
     }
 
     pub fn set(self: *Self, prop: Properties, param: f64) !void {
-        cr(c.VideoCapture_Set(self.ptr, @intFromEnum(prop), param));
+        try cr(c.VideoCapture_Set(self.ptr, @intFromEnum(prop), param));
     }
 
     pub fn grab(self: Self, skip: i32) !void {
-        cr(c.VideoCapture_Grab(self.ptr, skip));
+        try cr(c.VideoCapture_Grab(self.ptr, skip));
     }
 
     pub fn read(self: Self, buf: *Mat) i32 {
@@ -384,10 +384,10 @@ pub const VideoWriter = struct {
         width: i32,
         height: i32,
         is_color: bool,
-    ) void {
+    ) !void {
         const c_name = @as([*]const u8, @ptrCast(name));
         const c_codec = @as([*]const u8, @ptrCast(codec));
-        _ = c.VideoWriter_Open(
+        try cr(c.VideoWriter_Open(
             self.ptr,
             c_name,
             c_codec,
@@ -395,12 +395,12 @@ pub const VideoWriter = struct {
             width,
             height,
             is_color,
-        );
+        ));
     }
 
     pub fn write(self: *Self, img: *Mat) !void {
         _ = try epnn(img.*.ptr);
-        _ = c.VideoWriter_Write(self.ptr, img.*.toC());
+        try cr(c.VideoWriter_Write(self.ptr, img.*.toC()));
     }
 
     pub fn isOpened(self: *Self) bool {
@@ -498,7 +498,7 @@ test "videoio VideoWriter" {
     try std.testing.expectEqual(false, img.isEmpty());
 
     var vw = try VideoWriter.init();
-    vw.open(".zig-cache/tmp/test_video_write.avi", "MJPG", 25, img.cols(), img.rows(), true);
+    try vw.open(".zig-cache/tmp/test_video_write.avi", "MJPG", 25, img.cols(), img.rows(), true);
     defer vw.deinit();
 
     try std.testing.expectEqual(true, vw.isOpened());

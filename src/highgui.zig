@@ -2,6 +2,7 @@ const std = @import("std");
 const c = @import("c_api.zig").c;
 const core = @import("core.zig");
 const utils = @import("utils.zig");
+const cr = @import("utils.zig").checkResult;
 const Mat = core.Mat;
 const Rect = core.Rect;
 const Rects = core.Rects;
@@ -114,7 +115,7 @@ pub const Window = struct {
     }
 
     pub fn deinit(self: *Self) void {
-        _ = c.Window_Close(self.getCWindowName());
+        try cr(c.Window_Close(self.getCWindowName()));
         self.open = false;
     }
 
@@ -127,12 +128,12 @@ pub const Window = struct {
     /// For further details, please see:
     /// https://docs.opencv.org/master/d7/dfc/group__highgui.html#ga66e4a6db4d4e06148bcdfe0d70a5df27
     ///
-    pub fn setProperty(self: *Self, flag: PropertyFlag, value: Flag) void {
-        _ = c.Window_SetProperty(
+    pub fn setProperty(self: *Self, flag: PropertyFlag, value: Flag) !void {
+        try cr(c.Window_SetProperty(
             self.getCWindowName(),
             @intFromEnum(flag),
             Flag.toNum(flag, value, f64),
-        );
+        ));
     }
 
     /// GetWindowProperty returns properties of a window.
@@ -154,8 +155,8 @@ pub const Window = struct {
     /// For further details, please see:
     /// https://docs.opencv.org/master/d7/dfc/group__highgui.html#ga56f8849295fd10d0c319724ddb773d96
     ///
-    pub fn setTitle(self: *Self, title: []const u8) void {
-        _ = c.Window_SetTitle(self.getCWindowName(), @as([*]const u8, @ptrCast(title)));
+    pub fn setTitle(self: *Self, title: []const u8) !void {
+        try cr(c.Window_SetTitle(self.getCWindowName(), @as([*]const u8, @ptrCast(title))));
         self.name = title;
     }
 
@@ -179,8 +180,8 @@ pub const Window = struct {
     /// For further details, please see:
     /// http://docs.opencv.org/master/d7/dfc/group__highgui.html#ga453d42fe4cb60e5723281a89973ee563
     ///
-    pub fn imShow(self: *Self, mat: core.Mat) void {
-        _ = c.Window_IMShow(self.getCWindowName(), mat.ptr);
+    pub fn imShow(self: *Self, mat: core.Mat) !void {
+        try cr(c.Window_IMShow(self.getCWindowName(), mat.ptr));
     }
 
     /// MoveWindow moves window to the specified position.
@@ -188,8 +189,8 @@ pub const Window = struct {
     /// For further details, please see:
     /// https://docs.opencv.org/master/d7/dfc/group__highgui.html#ga8d86b207f7211250dbe6e28f76307ffb
     ///
-    pub fn move(self: *Self, x: i32, y: i32) void {
-        _ = c.Window_Move(self.getCWindowName(), x, y);
+    pub fn move(self: *Self, x: i32, y: i32) !void {
+        try cr(c.Window_Move(self.getCWindowName(), x, y));
     }
 
     /// ResizeWindow resizes window to the specified size.
@@ -197,8 +198,8 @@ pub const Window = struct {
     /// For further details, please see:
     /// https://docs.opencv.org/master/d7/dfc/group__highgui.html#ga9e80e080f7ef33f897e415358aee7f7e
     ///
-    pub fn resize(self: *Self, width: i32, height: i32) void {
-        _ = c.Window_Resize(self.getCWindowName(), width, height);
+    pub fn resize(self: *Self, width: i32, height: i32) !void {
+        try cr(c.Window_Resize(self.getCWindowName(), width, height));
     }
 
     /// SelectROI selects a Region Of Interest (ROI) on the given image.
