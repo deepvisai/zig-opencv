@@ -157,6 +157,7 @@ pub fn build(b: *std.Build) void {
     }
 
     unit_tests.addLibraryPath(opencv_build.lib_dir);
+    unit_tests.addRPath(opencv_build.lib_dir);
     unit_tests.linkLibrary(zigcv_lib);
     unit_tests.linkLibCpp();
     unit_tests.linkSystemLibrary("z");
@@ -260,6 +261,14 @@ fn buildOpenCVStep(b: *std.Build) OpenCVBuild {
         "CMAKE_LINK_DEPENDS_NO_SHARED=ON",
         "-D",
         "CMAKE_CXX_FLAGS=-isystem-after /usr/include",
+        "-D",
+        "CMAKE_SHARED_LINKER_FLAGS=-Wl,-dead_strip_dylibs",
+        "-D",
+        "CMAKE_ASM_FLAGS=",
+        "-D",
+        "PNG_ARM_NEON_OPT=0",
+        "-D",
+        "BUILD_PNG=OFF",
         "-D",
     });
     configure_cmd.addPrefixedDirectoryArg("OPENCV_EXTRA_MODULES_PATH=", opencv_contrib_modules_dir);
