@@ -808,8 +808,8 @@ pub fn eigen(self: Self, eigenvalues: *Self, eigenvectors: *Self) bool {
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gaf51987e03cac8d171fbd2b327cf966f6
 //
-pub fn eigenNonSymmetric(self: Self, eigenvalues: *Self, eigenvectors: *Self) void {
-    c.Mat_EigenNonSymmetric(self.ptr, eigenvalues.*.ptr, eigenvectors.*.ptr);
+pub fn eigenNonSymmetric(self: Self, eigenvalues: *Self, eigenvectors: *Self) !void {
+    cr(c.Mat_EigenNonSymmetric(self.ptr, eigenvalues.*.ptr, eigenvectors.*.ptr));
 }
 
 // Exp calculates the exponent of every array element.
@@ -817,8 +817,8 @@ pub fn eigenNonSymmetric(self: Self, eigenvalues: *Self, eigenvectors: *Self) vo
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga3e10108e2162c338f1b848af619f39e5
 //
-pub fn exp(self: Self, dest: *Self) void {
-    c.Mat_Exp(self.ptr, dest.*.ptr);
+pub fn exp(self: Self, dest: *Self) !void {
+    cr(c.Mat_Exp(self.ptr, dest.*.ptr));
 }
 
 // ExtractChannel extracts a single channel from src (coi is 0-based index).
@@ -826,8 +826,8 @@ pub fn exp(self: Self, dest: *Self) void {
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gacc6158574aa1f0281878c955bcf35642
 //
-pub fn extractChannel(self: Self, dest: *Self, coi: i32) void {
-    c.Mat_ExtractChannel(self.ptr, dest.*.ptr, coi);
+pub fn extractChannel(self: Self, dest: *Self, coi: i32) !void {
+    cr(c.Mat_ExtractChannel(self.ptr, dest.*.ptr, coi));
 }
 
 // FindNonZero returns the list of locations of non-zero pixels.
@@ -835,8 +835,8 @@ pub fn extractChannel(self: Self, dest: *Self, coi: i32) void {
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gaed7df59a3539b4cc0fe5c9c8d7586190
 //
-pub fn findNonZero(self: Self, idx: *Self) void {
-    c.Mat_FindNonZero(self.ptr, idx.*.ptr);
+pub fn findNonZero(self: Self, idx: *Self) !void {
+    cr(c.Mat_FindNonZero(self.ptr, idx.*.ptr));
 }
 
 // Flip flips a 2D array around horizontal(0), vertical(1), or both axes(-1).
@@ -844,8 +844,8 @@ pub fn findNonZero(self: Self, idx: *Self) void {
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gaca7be533e3dac7feb70fc60635adf441
 //
-pub fn flip(self: Self, dest: *Self, flipCode: i32) void {
-    c.Mat_Flip(self.ptr, dest.*.ptr, flipCode);
+pub fn flip(self: Self, dest: *Self, flipCode: i32) !void {
+    cr(c.Mat_Flip(self.ptr, dest.*.ptr, flipCode));
 }
 
 // Gemm performs generalized matrix multiplication.
@@ -853,8 +853,8 @@ pub fn flip(self: Self, dest: *Self, flipCode: i32) void {
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gacb6e64071dffe36434e1e7ee79e7cb35
 //
-pub fn gemm(self: Self, m1: Self, alpha: f64, m2: Self, beta: f64, dest: *Self, flags: GemmFlags) void {
-    c.Mat_Gemm(self.ptr, m1.ptr, alpha, m2.ptr, beta, dest.*.ptr, @intFromEnum(flags));
+pub fn gemm(self: Self, m1: Self, alpha: f64, m2: Self, beta: f64, dest: *Self, flags: GemmFlags) !void {
+    cr(c.Mat_Gemm(self.ptr, m1.ptr, alpha, m2.ptr, beta, dest.*.ptr, @intFromEnum(flags)));
 }
 
 // GetOptimalDFTSize returns the optimal Discrete Fourier Transform (DFT) size
@@ -872,8 +872,8 @@ pub fn getOptimalDFTSize(vecsize: i32) i32 {
 /// For further details, please see:
 /// https://docs.opencv.org/master/d2/de8/group__core__array.html#gaab5ceee39e0580f879df645a872c6bf7
 ///
-pub fn hconcat(src1: Self, src2: Self, dst: *Self) void {
-    c.Mat_Hconcat(src1.ptr, src2.ptr, dst.*.ptr);
+pub fn hconcat(src1: Self, src2: Self, dst: *Self) !void {
+    cr(c.Mat_Hconcat(src1.ptr, src2.ptr, dst.*.ptr));
 }
 
 /// Vconcat applies vertical concatenation to given matrices.
@@ -881,8 +881,8 @@ pub fn hconcat(src1: Self, src2: Self, dst: *Self) void {
 /// For further details, please see:
 /// https://docs.opencv.org/master/d2/de8/group__core__array.html#gaab5ceee39e0580f879df645a872c6bf7
 ///
-pub fn vconcat(src1: Self, src2: Self, dst: *Self) void {
-    c.Mat_Vconcat(src1.ptr, src2.ptr, dst.*.ptr);
+pub fn vconcat(src1: Self, src2: Self, dst: *Self) !void {
+    cr(c.Mat_Vconcat(src1.ptr, src2.ptr, dst.*.ptr));
 }
 
 /// Rotate rotates a 2D array in multiples of 90 degrees
@@ -918,8 +918,8 @@ pub fn idft(self: Self, dest: *Self, flags: DftFlags, nonzeroRows: i32) void {
 /// For further details, please see:
 /// https://docs.opencv.org/master/d2/de8/group__core__array.html#ga48af0ab51e36436c5d04340e036ce981
 ///
-pub fn inRange(self: Self, lowerb: Self, upperb: Self, dest: *Self) void {
-    c.Mat_InRange(self.ptr, lowerb.ptr, upperb.ptr, dest.*.ptr);
+pub fn inRange(self: Self, lowerb: Self, upperb: Self, dest: *Self) !void {
+    cr(c.Mat_InRange(self.ptr, lowerb.ptr, upperb.ptr, dest.*.ptr));
 }
 
 /// InRangeWithScalar checks if array elements lie between the elements of two Scalars
@@ -927,8 +927,8 @@ pub fn inRange(self: Self, lowerb: Self, upperb: Self, dest: *Self) void {
 /// For further details, please see:
 /// https://docs.opencv.org/master/d2/de8/group__core__array.html#ga48af0ab51e36436c5d04340e036ce981
 ///
-pub fn inRangeWithScalar(self: Self, lowerb: Scalar, upperb: Scalar, dest: *Self) void {
-    c.Mat_InRangeWithScalar(self.ptr, lowerb, upperb, dest.*.ptr);
+pub fn inRangeWithScalar(self: Self, lowerb: Scalar, upperb: Scalar, dest: *Self) !void {
+    cr(c.Mat_InRangeWithScalar(self.ptr, lowerb, upperb, dest.*.ptr));
 }
 
 /// InsertChannel inserts a single channel to dst (coi is 0-based index)
@@ -938,8 +938,8 @@ pub fn inRangeWithScalar(self: Self, lowerb: Scalar, upperb: Scalar, dest: *Self
 /// https://docs.opencv.org/master/d2/de8/group__core__array.html#ga1d4bd886d35b00ec0b764cb4ce6eb515
 ///
 //     pub extern fn Mat_InsertChannel(src: Mat, dst: Mat, coi: c_int) void;
-pub fn insertChannel(self: Self, dest: *Self, coi: i32) void {
-    c.Mat_InsertChannel(self.ptr, dest.*.ptr, coi);
+pub fn insertChannel(self: Self, dest: *Self, coi: i32) !void {
+    cr(c.Mat_InsertChannel(self.ptr, dest.*.ptr, coi));
 }
 
 /// Invert finds the inverse or pseudo-inverse of a matrix.
@@ -1164,8 +1164,8 @@ pub fn borderInterpolate(p: c_int, len: c_int, border_type: BorderType) c_int {
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga017122d912af19d7d0d2cccc2d63819f
 //
-pub fn calcCovarMatrix(samples: Self, covar: *Self, mean_: *Self, flags: CovarFlags, ctype: MatType) void {
-    _ = c.Mat_CalcCovarMatrix(samples.ptr, covar.*.ptr, mean_.*.ptr, flags.toNum(), @intFromEnum(ctype));
+pub fn calcCovarMatrix(samples: Self, covar: *Self, mean_: *Self, flags: CovarFlags, ctype: MatType) !void {
+    cr(c.Mat_CalcCovarMatrix(samples.ptr, covar.*.ptr, mean_.*.ptr, flags.toNum(), @intFromEnum(ctype)));
 }
 
 // CartToPolar calculates the magnitude and angle of 2D vectors.
@@ -1173,8 +1173,8 @@ pub fn calcCovarMatrix(samples: Self, covar: *Self, mean_: *Self, flags: CovarFl
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gac5f92f48ec32cacf5275969c33ee837d
 //
-pub fn cartToPolar(x: Self, y: Self, magnitude_: *Self, angle: *Self, angle_in_degrees: bool) void {
-    _ = c.Mat_CartToPolar(x.ptr, y.ptr, magnitude_.*.ptr, angle.*.ptr, angle_in_degrees);
+pub fn cartToPolar(x: Self, y: Self, magnitude_: *Self, angle: *Self, angle_in_degrees: bool) !void {
+    cr(c.Mat_CartToPolar(x.ptr, y.ptr, magnitude_.*.ptr, angle.*.ptr, angle_in_degrees));
 }
 
 // CheckRange checks every element of an input array for invalid values.
@@ -1201,7 +1201,7 @@ pub fn countNonZero(self: Self) i32 {
 /// https://docs.opencv.org/master/d2/de8/group__core__array.html#ga85aad4d668c01fbd64825f589e3696d4
 ///
 pub fn dct(self: Self, dst: *Self, flags: DftFlags) void {
-    c.Mat_DCT(self.ptr, dst.*.ptr, flags.toNum());
+    cr(c.Mat_DCT(self.ptr, dst.*.ptr, flags.toNum()));
 }
 
 /// Determinant returns the determinant of a square floating-point matrix.
@@ -1219,8 +1219,8 @@ pub fn determinant(self: Self) f64 {
 /// For further details, please see:
 /// https://docs.opencv.org/master/d2/de8/group__core__array.html#gadd6cf9baf2b8b704a11b5f04aaf4f39d
 ///
-pub fn dft(self: Self, dst: *Self, flags: DftFlags) void {
-    c.Mat_DFT(self.ptr, dst.*.ptr, flags.toNum());
+pub fn dft(self: Self, dst: *Self, flags: DftFlags) !void {
+    cr(c.Mat_DFT(self.ptr, dst.*.ptr, flags.toNum()));
 }
 
 // CompleteSymm copies the lower or the upper half of a square matrix to its another half.
@@ -1228,8 +1228,8 @@ pub fn dft(self: Self, dst: *Self, flags: DftFlags) void {
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#gaa9d88dcd0e54b6d1af38d41f2a3e3d25
 //
-pub fn completeSymm(self: Self, lower_to_upper: bool) void {
-    return c.Mat_CompleteSymm(self.ptr, lower_to_upper);
+pub fn completeSymm(self: Self, lower_to_upper: bool) !void {
+    return cr(c.Mat_CompleteSymm(self.ptr, lower_to_upper));
 }
 
 // ConvertScaleAbs scales, calculates absolute values, and converts the result to 8-bit.
@@ -1237,8 +1237,8 @@ pub fn completeSymm(self: Self, lower_to_upper: bool) void {
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga3460e9c9f37b563ab9dd550c4d8c4e7d
 //
-pub fn convertScaleAbs(self: Self, dest: *Self, alpha: f64, beta: f64) void {
-    return c.Mat_ConvertScaleAbs(self.ptr, dest.*.ptr, alpha, beta);
+pub fn convertScaleAbs(self: Self, dest: *Self, alpha: f64, beta: f64) !void {
+    return cr(c.Mat_ConvertScaleAbs(self.ptr, dest.*.ptr, alpha, beta));
 }
 
 // CopyMakeBorder forms a border around an image (applies padding).
@@ -1246,8 +1246,8 @@ pub fn convertScaleAbs(self: Self, dest: *Self, alpha: f64, beta: f64) void {
 // For further details, please see:
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga2ac1049c2c3dd25c2b41bffe17658a36
 //
-pub fn copyMakeBorder(self: Self, dest: *Self, top: i32, bottom: i32, left: i32, right: i32, borderType: BorderType, value: Color) void {
-    return c.Mat_CopyMakeBorder(self.ptr, dest.*.ptr, top, bottom, left, right, borderType.toNum(), value.toScalar().toC());
+pub fn copyMakeBorder(self: Self, dest: *Self, top: i32, bottom: i32, left: i32, right: i32, borderType: BorderType, value: Color) !void {
+    return cr(c.Mat_CopyMakeBorder(self.ptr, dest.*.ptr, top, bottom, left, right, borderType.toNum(), value.toScalar().toC()));
 }
 
 pub fn dataPtr(self: Self, comptime T: type) ![]T {
