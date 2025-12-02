@@ -1,5 +1,5 @@
 const std = @import("std");
-const c = @import("c_api.zig");
+const c = @import("c_api.zig").c;
 
 /// Return OpenCV version as a string.
 pub fn openCVVersion() []const u8 {
@@ -13,7 +13,7 @@ test "show version" {
 
     const version = openCVVersion();
 
-    const actual_version = (std.ChildProcess.exec(.{
+    const actual_version = (std.process.Child.run(.{
         .allocator = allocator,
         .argv = &.{ "pkg-config", "--modversion", "opencv4" },
     }) catch {

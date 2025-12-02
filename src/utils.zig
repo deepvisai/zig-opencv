@@ -1,5 +1,5 @@
 const std = @import("std");
-const c = @import("c_api.zig");
+const c = @import("c_api.zig").c;
 
 pub fn fromCStructsToArrayList(from_array: anytype, from_array_length: i32, comptime ToType: type, allocator: std.mem.Allocator) !std.ArrayList(ToType) {
     const len = @as(usize, @intCast(from_array_length));
@@ -10,11 +10,11 @@ pub fn fromCStructsToArrayList(from_array: anytype, from_array_length: i32, comp
             const elem = blk: {
                 const elem = ToType.initFromC(from_array[i]);
                 break :blk switch (comptime @typeInfo(@TypeOf(elem))) {
-                    .ErrorUnion => try elem,
+                    .error_union => try elem,
                     else => elem,
                 };
             };
-            try arr.append(elem);
+            try arr.append(allocator, elem);
         }
     }
     return arr;
@@ -29,53 +29,14 @@ pub fn ensurePtrNotNull(ptr: anytype) !@TypeOf(ptr) {
 pub fn ensureFileExists(path: []const u8, allow_zero_byte: bool) !void {
     const stat = std.fs.cwd().statFile(path) catch |err| switch (err) {
         error.FileNotFound => {
-            std.debug.print("File not found: {s}\n", .{path});
+            // std.debug.print("File not found: {s}\n", .{path});
             return error.FileNotFound;
         },
         else => return err,
     };
     if (stat.size == 0 and !allow_zero_byte) {
-        std.debug.print("File is empty: {s}\n", .{path});
+        // std.debug.print("File is empty: {s}\n", .{path});
         return error.FileEmpty;
-    }
-}
-
-pub fn ensureModelFile(filename: []const u8, allocator: std.mem.Allocator) !void {
-    const cache_dir = "zig-cache/tmp";
-    const dest_rel = try std.fmt.allocPrint(allocator, "{s}/{s}", .{ cache_dir, filename });
-    defer allocator.free(dest_rel);
-
-    try std.fs.cwd().makePath(cache_dir);
-
-    if (std.fs.cwd().statFile(dest_rel)) |_| {
-        return;
-    } else |err| switch (err) {
-        error.FileNotFound => {},
-        else => return err,
-    }
-
-    const model_dir = std.process.getEnvVarOwned(allocator, "ZIGCV_MODEL_DIR") catch |err| switch (err) {
-        error.EnvironmentVariableNotFound => return error.FileNotFound,
-        else => return err,
-    };
-    defer allocator.free(model_dir);
-
-    var src_dir = try std.fs.cwd().openDir(model_dir, .{});
-    defer src_dir.close();
-    var dest_dir = try std.fs.cwd().openDir(cache_dir, .{});
-    defer dest_dir.close();
-
-    var src_file = try src_dir.openFile(filename, .{});
-    defer src_file.close();
-
-    var dest_file = try dest_dir.createFile(filename, .{ .truncate = true });
-    defer dest_file.close();
-
-    var buffer: [16 * 1024]u8 = undefined;
-    while (true) {
-        const read_bytes = try src_file.read(&buffer);
-        if (read_bytes == 0) break;
-        try dest_file.writeAll(buffer[0..read_bytes]);
     }
 }
 
@@ -119,6 +80,6 @@ pub fn downloadFile(url: []const u8, dir: []const u8, allocator: std.mem.Allocat
 }
 
 test "ensureNotNull" {
-    var ptr: ?*u8 = null;
+    const ptr: ?*u8 = null;
     try std.testing.expectError(error.AllocationError, ensurePtrNotNull(ptr));
 }

@@ -16,7 +16,7 @@ pub fn build(b: *std.Build) void {
     const gocv_src_dir = gocv_dep.path("");
     const gocv_contrib_dir = gocv_dep.path("contrib");
 
-    const opencv_libs, const opencv4_headers_dir, const opencv4_libraries_dir = buildOpenCVStep(b);
+    const opencv_libs = buildOpenCVStep(b);
 
     var zigcv = b.addModule("root", .{
         .root_source_file = b.path("src/zigcv.zig"),
@@ -25,8 +25,6 @@ pub fn build(b: *std.Build) void {
     zigcv.addIncludePath(gocv_src_dir); // OpenCV C bindings base
     zigcv.addIncludePath(gocv_contrib_dir); // OpenCV contrib C bindings
     zigcv.addIncludePath(b.path(zig_src_dir)); // Our glue header
-    zigcv.addIncludePath(opencv4_headers_dir); // Include the opencv4 headers
-    zigcv.addLibraryPath(opencv4_libraries_dir);
 
     const zigcv_lib = b.addLibrary(.{
         .name = "zigcv",
@@ -43,7 +41,6 @@ pub fn build(b: *std.Build) void {
     zigcv_lib.addIncludePath(gocv_src_dir); // OpenCV C bindings base
     zigcv_lib.addIncludePath(gocv_contrib_dir); // OpenCV contrib C bindings
     zigcv_lib.addIncludePath(b.path(zig_src_dir)); // Our glue header
-    zigcv_lib.addIncludePath(opencv4_headers_dir); // Include the opencv4 headers
 
     zigcv_lib.addCSourceFile(.{
         .file = b.path("src/core/zig_core.cpp"),
@@ -93,7 +90,6 @@ pub fn build(b: *std.Build) void {
     zigcv_lib.linkLibCpp();
     zigcv_lib.linkSystemLibrary("z");
 
-    zigcv_lib.addLibraryPath(opencv4_libraries_dir);
     zigcv_lib.linkSystemLibrary("opencv_bioinspired");
     zigcv_lib.linkSystemLibrary("opencv_calib3d");
     zigcv_lib.linkSystemLibrary("opencv_ccalib");
@@ -170,60 +166,41 @@ pub fn build(b: *std.Build) void {
     // test_step.dependOn(&b.addRunArtifact(unit_tests).step);
 }
 
-fn buildOpenCVStep(b: *std.Build) struct {
-    *std.Build.Step.Run,
-    std.Build.LazyPath,
-    std.Build.LazyPath,
-} {
-    const opencv_dep = b.dependency("opencv", .{});
-    const opencv_contrib_dep = b.dependency("opencv_contrib", .{});
+fn buildOpenCVStep(b: *std.Build) *std.Build.Step.Run {
 
     const cmake_bin = b.findProgram(&.{"cmake"}, &.{}) catch @panic("Could not find cmake");
 
     const configure_cmd = b.addSystemCommand(&.{ cmake_bin, "-B" });
-    configure_cmd.setName("Running OpenCV's cmake --configure");
     const build_work_dir = configure_cmd.addOutputDirectoryArg("build_work");
-    configure_cmd.setEnvironmentVariable("CC", "zig cc");
-    configure_cmd.setEnvironmentVariable("CXX", "zig c++");
+
+    const opencv_dep = b.dependency("opencv", .{});
+    const opencv_path = opencv_dep.path("");
+
+    configure_cmd.addArg("-S");
+    configure_cmd.addDirectoryArg(opencv_path);
+
+    configure_cmd.setName("Running OpenCV's cmake --configure");
     configure_cmd.addArgs(&.{
-        "-D",
-        "CMAKE_BUILD_TYPE=RELEASE",
-        "-D",
-        "WITH_IPP=OFF",
-        "-D",
+        "-DCMAKE_BUILD_TYPE=RELEASE",
+        "-DWITH_IPP=OFF",
+        "-DCMAKE_C_COMPILER=gcc",
+        "-DCMAKE_CXX_COMPILER=g++",
+        "-DCMAKE_CXX_STANDARD=17",
+        "-DOPENCV_ENABLE_NONFREE=ON",
+        "-DWITH_JASPER=OFF",
+        "-DWITH_TBB=ON",
+        "-DBUILD_DOCS=OFF",
+        "-DBUILD_EXAMPLES=OFF",
+        "-DBUILD_TESTS=OFF",
+        "-DBUILD_PERF_TESTS=OFF",
+        "-DBUILD_opencv_java=NO",
+        "-DBUILD_opencv_dnn=OFF",
+        "-DBUILD_opencv_python=NO",
+        "-DBUILD_opencv_python2=NO",
+        "-DBUILD_opencv_python3=NO",
+        "-DOPENCV_GENERATE_PKGCONFIG=OFF",
     });
-    const opencv4_build_dir = configure_cmd.addPrefixedOutputDirectoryArg("CMAKE_INSTALL_PREFIX=", "zig_opencv4_build");
-    configure_cmd.addArgs(&.{
-        "-D",
-    });
-    configure_cmd.addPrefixedDirectoryArg("OPENCV_EXTRA_MODULES_PATH=", opencv_contrib_dep.path("modules"));
-    configure_cmd.addArgs(&.{
-        "-D",
-        "OPENCV_ENABLE_NONFREE=ON",
-        "-D",
-        "WITH_JASPER=OFF",
-        "-D",
-        "WITH_TBB=ON",
-        "-D",
-        "BUILD_DOCS=OFF",
-        "-D",
-        "BUILD_EXAMPLES=OFF",
-        "-D",
-        "BUILD_TESTS=OFF",
-        "-D",
-        "BUILD_PERF_TESTS=OFF",
-        "-D",
-        "BUILD_opencv_java=NO",
-        "-D",
-        "BUILD_opencv_python=NO",
-        "-D",
-        "BUILD_opencv_python2=NO",
-        "-D",
-        "BUILD_opencv_python3=NO",
-        "-D",
-        "OPENCV_GENERATE_PKGCONFIG=OFF",
-    });
-    configure_cmd.addDirectoryArg(opencv_dep.path(""));
+    
     configure_cmd.expectExitCode(0);
 
     const cpu_count = std.Thread.getCpuCount() catch 1;
@@ -236,15 +213,13 @@ fn buildOpenCVStep(b: *std.Build) struct {
     build_cmd.step.dependOn(&configure_cmd.step);
     build_cmd.expectExitCode(0);
 
-    const install_cmd = b.addSystemCommand(&.{ cmake_bin, "--install" });
-    install_cmd.addDirectoryArg(build_work_dir);
-    install_cmd.step.dependOn(&build_cmd.step);
-    install_cmd.expectExitCode(0);
+    // const install_cmd = b.addSystemCommand(&.{ cmake_bin, "--install" });
+    // install_cmd.addDirectoryArg(build_work_dir);
+    // install_cmd.step.dependOn(&build_cmd.step);
+    // install_cmd.expectExitCode(0);
 
-    return .{
-        install_cmd,
-        opencv4_build_dir.path(b, "include/opencv4"),
-        opencv4_build_dir.path(b, "lib64"),
-    };
+    return build_cmd;
+        // opencv4_build_dir.path(b, "include/opencv4"),
+        // opencv4_build_dir.path(b, "lib64"),
 }
 

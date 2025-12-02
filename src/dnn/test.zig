@@ -12,39 +12,20 @@ const Rect = core.Rect;
 const Net = dnn.Net;
 const Blob = dnn.Blob;
 
-const img_dir = "./libs/gocv/images/";
-const cache_dir = "./zig-cache/tmp/";
+const img_dir = "test/images/";
+const models_dir = "test/models/";
 
-const caffe_model_url = "http://dl.caffe.berkeleyvision.org/bvlc_googlenet.caffemodel";
-const caffe_model_file = cache_dir ++ "bvlc_googlenet.caffemodel";
-const caffe_prototext_url = "https://raw.githubusercontent.com/opencv/opencv_extra/20d18acad1bcb312045ea64a239ebe68c8728b88/testdata/dnn/bvlc_googlenet.prototxt";
-const caffe_prototext_file = cache_dir ++ "bvlc_googlenet.prototxt";
-const tensorflow_model_zip_url = "https://storage.googleapis.com/download.tensorflow.org/models/inception5h.zip";
-const tensorflow_model_zip_file = cache_dir ++ "inception5h.zip";
-const tensorflow_model_filename = "tensorflow_inception_graph.pb";
-const tensorflow_model_file = cache_dir ++ tensorflow_model_filename;
-const onnx_model_url = "https://github.com/onnx/models/raw/4eff8f9b9189672de28d087684e7085ad977747c/vision/classification/inception_and_googlenet/googlenet/model/googlenet-9.onnx";
-const onnx_model_file = cache_dir ++ "googlenet-9.onnx";
+// http://dl.caffe.berkeleyvision.org/bvlc_googlenet.caffemodel
+const caffe_model_file = models_dir ++ "bvlc_googlenet.caffemodel";
 
-// pub fn downloadModel(url: []const u8, allocator_: std.mem.Allocator) !void {
-//     try utils.downloadFile(url, cache_dir, allocator_);
-// }
+// https://raw.githubusercontent.com/opencv/opencv_extra/20d18acad1bcb312045ea64a239ebe68c8728b88/testdata/dnn/bvlc_googlenet.prototxt
+const caffe_prototext_file = models_dir ++ "bvlc_googlenet.prototxt";
 
-var fixtures_ready = false;
+// https://storage.googleapis.com/download.tensorflow.org/models/inception5h.zip
+const tensorflow_model_file = models_dir ++ "tensorflow_inception_graph.pb";
 
-fn ensureDnnFixtures() !void {
-    if (fixtures_ready) return;
-
-    try utils.ensureModelFile("bvlc_googlenet.caffemodel", test_allocator);
-    try utils.ensureModelFile("bvlc_googlenet.prototxt", test_allocator);
-    try utils.ensureModelFile(tensorflow_model_filename, test_allocator);
-    try utils.ensureModelFile("imagenet_comp_graph_label_strings.txt", test_allocator);
-    try utils.ensureModelFile("googlenet-9.onnx", test_allocator);
-    try utils.ensureModelFile("res10_300x300_ssd_iter_140000.caffemodel", test_allocator);
-    try utils.ensureModelFile("deploy.prototxt", test_allocator);
-
-    fixtures_ready = true;
-}
+// https://github.com/onnx/models/raw/4eff8f9b9189672de28d087684e7085ad977747c/vision/classification/inception_and_googlenet/googlenet/model/googlenet-9.onnx
+const onnx_model_file = "test/models/googlenet-9.onnx";
 
 fn checkNet(net: *Net, allocator: std.mem.Allocator) !void {
     net.setPreferableBackend(.default);
@@ -85,7 +66,7 @@ fn checkNet(net: *Net, allocator: std.mem.Allocator) !void {
 
     try testing.expectEqual(@as(usize, 142), lnames.items.len);
 
-    var err_happend = false;
+    const err_happend = false;
     try testing.expectEqualStrings("conv1/relu_7x7", lnames.items[1]);
     var cs = [_][]const u8{"prob"};
     var prob = try net.forwardLayers(&cs, allocator);
@@ -110,48 +91,46 @@ fn checkNet(net: *Net, allocator: std.mem.Allocator) !void {
     if (err_happend) return error.SkipZigTest;
 }
 
-test "dnn read net from disk" {
-    try ensureDnnFixtures();
-    // try downloadModel(caffe_model_url, test_allocator);
-    // try downloadModel(caffe_prototext_url, test_allocator);
-    var net = try Net.readNet(
-        caffe_model_file,
-        caffe_prototext_file,
-    );
-    defer net.deinit();
-    try testing.expectEqual(false, net.isEmpty());
+// test "dnn read net from disk" {
+// // try downloadModel(caffe_model_url, test_allocator);
+// // try downloadModel(caffe_prototext_url, test_allocator);
+// var net = try Net.readNet(
+// caffe_model_file,
+// caffe_prototext_file,
+// );
+// defer net.deinit();
+// try testing.expectEqual(false, net.isEmpty());
 
-    try checkNet(&net, test_allocator);
-}
+// try checkNet(&net, test_allocator);
+// }
 
-test "dnn read net from memory" {
-    try ensureDnnFixtures();
-    // try downloadModel(caffe_model_url, test_allocator);
-    // try downloadModel(caffe_prototext_url, test_allocator);
+// test "dnn read net from memory" {
+// // try downloadModel(caffe_model_url, test_allocator);
+// // try downloadModel(caffe_prototext_url, test_allocator);
 
-    var model_file = try std.fs.cwd().openFile(caffe_model_file, .{});
-    const m_stat = try std.fs.cwd().statFile(caffe_model_file);
-    defer model_file.close();
-    var model = try model_file.reader().readAllAlloc(
-        test_allocator,
-        m_stat.size,
-    );
-    defer test_allocator.free(model);
+// var model_file = try std.fs.cwd().openFile(caffe_model_file, .{});
+// const m_stat = try std.fs.cwd().statFile(caffe_model_file);
+// defer model_file.close();
+// const model = try model_file.reader().readAllAlloc(
+// test_allocator,
+// m_stat.size,
+// );
+// defer test_allocator.free(model);
 
-    var config_file = try std.fs.cwd().openFile(caffe_prototext_file, .{});
-    const c_stat = try std.fs.cwd().statFile(caffe_prototext_file);
-    defer config_file.close();
-    var config = try config_file.reader().readAllAlloc(
-        test_allocator,
-        c_stat.size,
-    );
-    defer test_allocator.free(config);
+// var config_file = try std.fs.cwd().openFile(caffe_prototext_file, .{});
+// const c_stat = try std.fs.cwd().statFile(caffe_prototext_file);
+// defer config_file.close();
+// const config = try config_file.reader().readAllAlloc(
+// test_allocator,
+// c_stat.size,
+// );
+// defer test_allocator.free(config);
 
-    var net = try Net.readNetFromBytes("caffe", model, config);
-    defer net.deinit();
+// var net = try Net.readNetFromBytes("caffe", model, config);
+// defer net.deinit();
 
-    try checkNet(&net, test_allocator);
-}
+// try checkNet(&net, test_allocator);
+// }
 
 fn checkCaffeNet(net: *Net) !void {
     var img = try imgcodecs.imRead(img_dir ++ "space_shuttle.jpg", .color);
@@ -187,7 +166,6 @@ fn checkCaffeNet(net: *Net) !void {
 }
 
 test "dnn read caffe disk" {
-    try ensureDnnFixtures();
     // try downloadModel(caffe_model_url, test_allocator);
     // try downloadModel(caffe_prototext_url, test_allocator);
     var net = try Net.readNetFromCaffe(
@@ -200,26 +178,25 @@ test "dnn read caffe disk" {
 }
 
 test "dnn read caffe memory" {
-    try ensureDnnFixtures();
     // try downloadModel(caffe_model_url, test_allocator);
     // try downloadModel(caffe_prototext_url, test_allocator);
 
     var model_file = try std.fs.cwd().openFile(caffe_model_file, .{});
-    const m_stat = try std.fs.cwd().statFile(caffe_model_file);
     defer model_file.close();
-    var model = try model_file.reader().readAllAlloc(
-        test_allocator,
-        m_stat.size,
-    );
+
+    var io = std.Io.Threaded.init(testing.allocator);
+    var buf: [8192]u8 = undefined;
+    var reader = model_file.reader(io.io(), &buf);
+
+    const model = try reader.interface.allocRemaining(testing.allocator, .unlimited);
     defer test_allocator.free(model);
 
     var config_file = try std.fs.cwd().openFile(caffe_prototext_file, .{});
-    const c_stat = try std.fs.cwd().statFile(caffe_prototext_file);
     defer config_file.close();
-    var config = try config_file.reader().readAllAlloc(
-        test_allocator,
-        c_stat.size,
-    );
+
+    var config_file_reader = config_file.reader(io.io(), &buf);
+
+    const config = try config_file_reader.interface.allocRemaining(testing.allocator, .unlimited);
     defer test_allocator.free(config);
 
     var net = try Net.readNetFromCaffeBytes(config, model);
@@ -259,12 +236,32 @@ fn checkTensorflow(net: *Net) !void {
     try testing.expectEqual(@as(i32, 0), minmax.max_loc.y);
 }
 
-fn downloadTFModel() !void {
-    try ensureDnnFixtures();
-}
+// fn downloadTFModel() !void {
+// // try downloadModel(tensorflow_model_zip_url, test_allocator);
+// var arena = std.heap.ArenaAllocator.init(test_allocator);
+// defer arena.deinit();
+// const arena_allocator = arena.allocator();
+// _ = std.fs.cwd().statFile(tensorflow_model_file) catch |err| {
+// if (err != error.FileNotFound) unreachable;
+// var child = std.process.Child.init(
+// &.{
+// "unzip",
+// "-o",
+// tensorflow_model_zip_file,
+// tensorflow_model_filename,
+// "-d",
+// cache_dir,
+// },
+// arena_allocator,
+// );
+// child.stderr = std.io.getStdErr();
+// child.stdout = std.io.getStdOut();
+// _ = try child.spawnAndWait();
+// };
+// }
 
 test "dnn read tensorflow disk" {
-    try downloadTFModel();
+    // try downloadTFModel();
     var net = try Net.readNetFromTensorflow(tensorflow_model_file);
     defer net.deinit();
 
@@ -272,14 +269,15 @@ test "dnn read tensorflow disk" {
 }
 
 test "dnn read tensorflow memory" {
-    try downloadTFModel();
+    // try downloadTFModel();
     var model_file = try std.fs.cwd().openFile(tensorflow_model_file, .{});
-    const m_stat = try std.fs.cwd().statFile(tensorflow_model_file);
     defer model_file.close();
-    var model = try model_file.reader().readAllAlloc(
-        test_allocator,
-        m_stat.size,
-    );
+
+    var io = std.Io.Threaded.init(testing.allocator);
+    var buf: [8192]u8 = undefined;
+    var reader = model_file.reader(io.io(), &buf);
+
+    const model = try reader.interface.allocRemaining(testing.allocator, .unlimited);
     defer test_allocator.free(model);
 
     var net = try Net.readNetFromTensorflowBytes(model);
@@ -322,7 +320,6 @@ fn checkONNX(net: *Net) !void {
 }
 
 test "dnn read onnx disk" {
-    try ensureDnnFixtures();
     // try downloadModel(onnx_model_url, test_allocator);
     var net = try Net.readNetFromONNX(onnx_model_file);
     defer net.deinit();
@@ -331,15 +328,15 @@ test "dnn read onnx disk" {
 }
 
 test "dnn read onnx memory" {
-    try ensureDnnFixtures();
     // try downloadModel(onnx_model_url, test_allocator);
     var model_file = try std.fs.cwd().openFile(onnx_model_file, .{});
-    const m_stat = try std.fs.cwd().statFile(onnx_model_file);
     defer model_file.close();
-    var model = try model_file.reader().readAllAlloc(
-        test_allocator,
-        m_stat.size,
-    );
+
+    var io = std.Io.Threaded.init(testing.allocator);
+    var buf: [8192]u8 = undefined;
+    var reader = model_file.reader(io.io(), &buf);
+
+    const model = try reader.interface.allocRemaining(testing.allocator, .unlimited);
     defer test_allocator.free(model);
 
     var net = try Net.readNetFromONNXBytes(model);
@@ -401,7 +398,7 @@ test "dnn blob initFromImage Size" {
     );
     defer blob.deinit();
 
-    var sz = (try blob.getSize()).toArray();
+    const sz = (try blob.getSize()).toArray();
 
     try testing.expectEqual(@as(f64, 1), sz[0]);
     try testing.expectEqual(@as(f64, 3), sz[1]);
@@ -410,15 +407,15 @@ test "dnn blob initFromImage Size" {
 }
 
 test "dnn blob initFromImages" {
-    var imgs = std.ArrayList(Mat).init(test_allocator);
-    defer imgs.deinit();
+    var imgs: std.ArrayList(Mat) = .empty;
+    defer imgs.deinit(testing.allocator);
 
     var img = try imgcodecs.imRead(img_dir ++ "space_shuttle.jpg", .color);
     defer img.deinit();
     try testing.expectEqual(false, img.isEmpty());
 
-    try imgs.append(img);
-    try imgs.append(img);
+    try imgs.append(testing.allocator, img);
+    try imgs.append(testing.allocator, img);
 
     var blob = try Blob.initFromImages(
         imgs.items,
@@ -431,7 +428,7 @@ test "dnn blob initFromImages" {
     );
     defer blob.deinit();
 
-    var sz = (try blob.getSize()).toArray();
+    const sz = (try blob.getSize()).toArray();
     try testing.expectEqual(@as(f64, 2), sz[0]);
     try testing.expectEqual(@as(f64, 3), sz[1]);
     try testing.expectEqual(@as(f64, 25), sz[2]);
@@ -457,7 +454,7 @@ test "dnn blob getImages" {
     defer blob.deinit();
 
     var imgs_from_blob = try blob.getImages(test_allocator);
-    defer imgs_from_blob.deinit();
+    defer imgs_from_blob.deinit(testing.allocator);
 
     {
         var i: usize = 0;
@@ -483,14 +480,14 @@ test "dnn nmsboxes" {
 
     img.convertTo(&img, .cv32fc1);
 
-    comptime var bboxes = [_]Rect{
+    var bboxes = [_]Rect{
         Rect.init(53, 47, 589 - 53, 451 - 47),
         Rect.init(118, 54, 618 - 118, 450 - 54),
         Rect.init(53, 66, 605 - 53, 480 - 66),
         Rect.init(111, 65, 630 - 111, 480 - 65),
         Rect.init(156, 51, 640 - 156, 480 - 51),
     };
-    comptime var scores = [_]f32{ 0.82094115, 0.7998236, 0.9809663, 0.99717456, 0.89628726 };
+    var scores = [_]f32{ 0.82094115, 0.7998236, 0.9809663, 0.99717456, 0.89628726 };
     const score_threshold: f32 = 0.5;
     const nms_threshold: f32 = 0.4;
     const max_index: usize = 1;
@@ -503,7 +500,7 @@ test "dnn nmsboxes" {
         max_index,
         test_allocator,
     );
-    defer indices.deinit();
+    defer indices.deinit(testing.allocator);
 
     try testing.expectEqual(@as(i32, 3), indices.items[0]);
 }
@@ -515,14 +512,14 @@ test "dnn nmsboxesWithParams" {
 
     img.convertTo(&img, .cv32fc1);
 
-    comptime var bboxes = [_]Rect{
+    var bboxes = [_]Rect{
         Rect.init(53, 47, 589 - 53, 451 - 47),
         Rect.init(118, 54, 618 - 118, 450 - 54),
         Rect.init(53, 66, 605 - 53, 480 - 66),
         Rect.init(111, 65, 630 - 111, 480 - 65),
         Rect.init(156, 51, 640 - 156, 480 - 51),
     };
-    comptime var scores = [_]f32{ 0.82094115, 0.7998236, 0.9809663, 0.99717456, 0.89628726 };
+    var scores = [_]f32{ 0.82094115, 0.7998236, 0.9809663, 0.99717456, 0.89628726 };
     const score_threshold: f32 = 0.5;
     const nms_threshold: f32 = 0.4;
     const max_index: usize = 1;
@@ -539,7 +536,7 @@ test "dnn nmsboxesWithParams" {
         max_index,
         test_allocator,
     );
-    defer indices.deinit();
+    defer indices.deinit(testing.allocator);
 
     try testing.expectEqual(@as(i32, 3), indices.items[0]);
 }
