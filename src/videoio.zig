@@ -2,6 +2,7 @@ const std = @import("std");
 const c = @import("c_api.zig").c;
 const core = @import("core.zig");
 const utils = @import("utils.zig");
+const cr = @import("utils.zig").checkResult;
 const assert = std.debug.assert;
 const epnn = utils.ensurePtrNotNull;
 const Mat = core.Mat;
@@ -299,18 +300,16 @@ pub const VideoCapture = struct {
         return c.VideoCapture_Get(self.ptr, @intFromEnum(prop));
     }
 
-    pub fn set(self: *Self, prop: Properties, param: f64) void {
-        return c.VideoCapture_Set(self.ptr, @intFromEnum(prop), param);
+    pub fn set(self: *Self, prop: Properties, param: f64) !void {
+        cr(c.VideoCapture_Set(self.ptr, @intFromEnum(prop), param));
     }
 
-    pub fn grab(self: Self, skip: i32) void {
-        c.VideoCapture_Grab(self.ptr, skip);
+    pub fn grab(self: Self, skip: i32) !void {
+        cr(c.VideoCapture_Grab(self.ptr, skip));
     }
 
-    pub fn read(self: Self, buf: *Mat) !void {
-        if (c.VideoCapture_Read(self.ptr, buf.*.ptr) == 0) {
-            return error.VideCaptureError;
-        }
+    pub fn read(self: Self, buf: *Mat) i32 {
+        return @as(i32, c.VideoCapture_Read(self.ptr, buf.*.ptr));
     }
 
     const ConvertStruct = packed struct {
@@ -422,13 +421,13 @@ test "videoio VideoCapture captureFile" {
     try std.testing.expectEqual(@as(f64, 560), vc.get(.frame_width));
     try std.testing.expectEqual(@as(f64, 320), vc.get(.frame_height));
 
-    vc.grab(10);
-    vc.set(.brightness, 100);
+    try vc.grab(10);
+    try vc.set(.brightness, 100);
 
     var img = try Mat.init();
     defer img.deinit();
 
-    try vc.read(&img);
+    _ = vc.read(&img);
     try std.testing.expectEqual(false, img.isEmpty());
 }
 

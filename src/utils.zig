@@ -1,6 +1,27 @@
 const std = @import("std");
 const c = @import("c_api.zig").c;
 
+/// Check OpenCVResult and return error if Code is non-zero
+/// Mirrors gocv's OpenCVResult function behavior:
+/// - Code == 0: success
+/// - Code != 0: error occurred
+pub fn checkResult(result: c.OpenCVResult) !void {
+    if (result.Code == 0) {
+        return;
+    }
+
+    // Handle error case
+    if (result.Message == null or result.Length == 0) {
+        std.log.err("OpenCV Error (Code {d}): unknown error", .{result.Code});
+        return error.OpenCVException;
+    }
+
+    const msg_len: usize = @intCast(result.Length);
+    const msg = result.Message[0..msg_len];
+    std.log.err("OpenCV Error (Code {d}): {s}", .{ result.Code, msg });
+    return error.OpenCVException;
+}
+
 pub fn fromCStructsToArrayList(from_array: anytype, from_array_length: i32, comptime ToType: type, allocator: std.mem.Allocator) !std.ArrayList(ToType) {
     const len = @as(usize, @intCast(from_array_length));
     var arr = try std.ArrayList(ToType).initCapacity(allocator, len);

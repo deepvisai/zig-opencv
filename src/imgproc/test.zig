@@ -1923,7 +1923,7 @@ test "imgproc fillPoly" {
     var pv = try PointsVector.initFromPoints(&pts, testing.allocator);
     defer pv.deinit();
 
-    imgproc.fillPoly(&img, pv, white);
+    try imgproc.fillPoly(&img, pv, white);
 
     try testing.expectEqual(@as(u8, 255), img.get(u8, 10, 10));
 }
@@ -1965,7 +1965,7 @@ test "imgproc fillPolyWithParams" {
         var img = try Mat.initSize(100, 100, .cv8uc1);
         defer img.deinit();
 
-        imgproc.fillPolyWithParams(&img, pv, white, .line4, 0, tc.offset);
+        try imgproc.fillPolyWithParams(&img, pv, white, .line4, 0, tc.offset);
 
         try testing.expectEqual(tc.result, img.get(u8, @as(usize, @intCast(tc.point.x)), @as(usize, @intCast(tc.point.y))));
     }
@@ -1987,7 +1987,7 @@ test "imgproc polylines" {
     var pv = try PointsVector.initFromPoints(&pts, testing.allocator);
     defer pv.deinit();
 
-    imgproc.polylines(&img, pv, true, white, 1);
+    try imgproc.polylines(&img, pv, true, white, 1);
 
     try testing.expectEqual(@as(u8, 255), img.get(u8, 10, 10));
 }
@@ -2036,7 +2036,7 @@ test "imgproc sepFilter2D" {
     var kernelY = try imgproc.getStructuringElement(.rect, Size.init(1, 1));
     defer kernelY.deinit();
 
-    imgproc.sepFilter2D(img, &dst, -1, kernelX, kernelY, Point.init(-1, -1), 0, .{});
+    try imgproc.sepFilter2D(img, &dst, -1, kernelX, kernelY, Point.init(-1, -1), 0, .{});
     try testing.expectEqual(false, dst.isEmpty());
 }
 
@@ -2047,7 +2047,7 @@ test "imgproc logPolar" {
     var dst = try img.clone();
     defer dst.deinit();
 
-    imgproc.logPolar(img, &dst, Point.init(22, 22), 1, .{});
+    try imgproc.logPolar(img, &dst, Point.init(22, 22), 1, .{});
     try testing.expectEqual(false, dst.isEmpty());
 }
 
@@ -2058,7 +2058,7 @@ test "imgproc linearPolar" {
     var dst = try img.clone();
     defer dst.deinit();
 
-    imgproc.linearPolar(img, &dst, Point.init(22, 22), 1, .{});
+    try imgproc.linearPolar(img, &dst, Point.init(22, 22), 1, .{});
     try testing.expectEqual(false, dst.isEmpty());
 }
 
@@ -2075,7 +2075,7 @@ test "imgproc fitLine" {
     var line = try Mat.init();
     defer line.deinit();
 
-    imgproc.fitLine(pv, &line, .l2, 0, 0.01, 0.01);
+    try imgproc.fitLine(pv, &line, .l2, 0, 0.01, 0.01);
     try testing.expectEqual(false, line.isEmpty());
 }
 
@@ -2086,7 +2086,7 @@ test "imgproc invertAffineTransform" {
     var dst = try Mat.initSize(2, 3, .cv32fc1);
     defer dst.deinit();
 
-    imgproc.invertAffineTransform(src, &dst);
+    try imgproc.invertAffineTransform(src, &dst);
     try testing.expectEqual(false, dst.isEmpty());
 }
 
@@ -2138,7 +2138,7 @@ test "imgproc accumulate" {
     var dst = try Mat.initSize(src.rows(), src.cols(), .cv64fc3);
     defer dst.deinit();
 
-    imgproc.accumulate(src, &dst);
+    try imgproc.accumulate(src, &dst);
     try testing.expectEqual(false, dst.isEmpty());
 }
 
@@ -2151,7 +2151,7 @@ test "imgproc AccumulateWithMask" {
 
     var mask = try Mat.init();
     defer mask.deinit();
-    imgproc.accumulateWithMask(src, &dst, mask);
+    try imgproc.accumulateWithMask(src, &dst, mask);
 
     try testing.expectEqual(false, dst.isEmpty());
 }
@@ -2163,7 +2163,7 @@ test "imgproc accumulateSquare" {
     var dst = try Mat.initSize(src.rows(), src.cols(), .cv64fc3);
     defer dst.deinit();
 
-    imgproc.accumulateSquare(src, &dst);
+    try imgproc.accumulateSquare(src, &dst);
     try testing.expectEqual(false, dst.isEmpty());
 }
 
@@ -2176,7 +2176,7 @@ test "imgproc AccumulateSquareWithMask" {
 
     var mask = try Mat.init();
     defer mask.deinit();
-    imgproc.accumulateSquareWithMask(src, &dst, mask);
+    try imgproc.accumulateSquareWithMask(src, &dst, mask);
 
     try testing.expectEqual(false, dst.isEmpty());
 }
@@ -2191,7 +2191,7 @@ test "imgproc AccumulateProduct" {
     var dst = try Mat.initSize(src.size()[0], src.size()[1], .cv64fc3);
     defer dst.deinit();
 
-    imgproc.accumulateProduct(src, src2, &dst);
+    try imgproc.accumulateProduct(src, src2, &dst);
     try testing.expectEqual(false, dst.isEmpty());
 }
 
@@ -2207,7 +2207,7 @@ test "imgproc AccumulateProductWithMask" {
 
     var mask = try Mat.init();
     defer mask.deinit();
-    imgproc.accumulateProductWithMask(src, src2, &dst, mask);
+    try imgproc.accumulateProductWithMask(src, src2, &dst, mask);
 
     try testing.expectEqual(false, dst.isEmpty());
 }
@@ -2219,7 +2219,7 @@ test "imgproc AccumulatedWeighted" {
     var dst = try Mat.initSize(src.size()[0], src.size()[1], .cv64fc3);
     defer dst.deinit();
 
-    imgproc.accumulatedWeighted(src, &dst, 0.5);
+    try imgproc.accumulatedWeighted(src, &dst, 0.5);
     try testing.expectEqual(false, dst.isEmpty());
 }
 
@@ -2232,7 +2232,7 @@ test "imgproc AccumulatedWeightedWithMask" {
 
     var mask = try Mat.init();
     defer mask.deinit();
-    imgproc.accumulatedWeightedWithMask(src, &dst, 0.5, mask);
+    try imgproc.accumulatedWeightedWithMask(src, &dst, 0.5, mask);
 
     try testing.expectEqual(false, dst.isEmpty());
 }
