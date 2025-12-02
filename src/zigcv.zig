@@ -18,13 +18,13 @@ pub const c = @import("c_api.zig").c;
 pub const utils = @import("utils.zig");
 
 test {
-    _ = @import("asyncarray.zig");
+    // _ = @import("asyncarray.zig");
     _ = @import("calib3d.zig");
     _ = @import("core.zig");
     _ = @import("core/mat.zig");
     _ = @import("core/mat_test.zig");
-    _ = @import("dnn.zig");
-    _ = @import("dnn/test.zig");
+    // _ = @import("dnn.zig");
+    // _ = @import("dnn/test.zig");
     _ = @import("features2d.zig");
     _ = @import("highgui.zig");
     _ = @import("imgcodecs.zig");

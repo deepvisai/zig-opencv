@@ -361,7 +361,13 @@ const imgcodecs = @import("imgcodecs.zig");
 const imgproc = @import("imgproc.zig");
 const img_dir = "test/images/";
 const cache_dir = "./.zig-cache/tmp/";
+
+fn skipIfMissing(path: []const u8) !void {
+    std.fs.cwd().access(path, .{}) catch return error.SkipZigTest;
+}
+
 test "calib3d fisheye undistortImage" {
+    try skipIfMissing(img_dir ++ "fisheye_sample.jpg");
     var img = try imgcodecs.imRead(img_dir ++ "fisheye_sample.jpg", .gray_scale);
     defer img.deinit();
     try testing.expectEqual(false, img.isEmpty());

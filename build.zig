@@ -10,7 +10,7 @@ const zig_src_dir = "src/";
 
 const opencv_modules = [_][]const u8{
     "core", "imgproc", "imgcodecs", "videoio",   "highgui", "video", "calib3d", "features2d", "objdetect",
-    "ml",   "flann",   "photo",     "stitching", "gapi", "dnn"
+    "ml",   "flann",   "photo",     "stitching", "gapi"
 };
 
 const opencv_contrib_modules = [_][]const u8{
@@ -90,10 +90,8 @@ pub fn build(b: *std.Build) void {
     zigcv_lib.addCSourceFiles(.{
         .files = &.{
             "aruco.cpp",
-            "asyncarray.cpp",
             "calib3d.cpp",
             "core.cpp",
-            "dnn.cpp",
             "features2d.cpp",
             "highgui.cpp",
             "imgcodecs.cpp",
@@ -128,62 +126,8 @@ pub fn build(b: *std.Build) void {
     });
 
     zigcv_lib.linkLibCpp();
-    zigcv_lib.linkSystemLibrary("z");
-
-    zigcv_lib.linkSystemLibrary("opencv_bioinspired");
-    zigcv_lib.linkSystemLibrary("opencv_calib3d");
-    zigcv_lib.linkSystemLibrary("opencv_ccalib");
-    zigcv_lib.linkSystemLibrary("opencv_core");
-    zigcv_lib.linkSystemLibrary("opencv_datasets");
-    zigcv_lib.linkSystemLibrary("opencv_dnn");
-    zigcv_lib.linkSystemLibrary("opencv_dnn_objdetect");
-    zigcv_lib.linkSystemLibrary("opencv_dnn_superres");
-    zigcv_lib.linkSystemLibrary("opencv_dpm");
-    zigcv_lib.linkSystemLibrary("opencv_features2d");
-    zigcv_lib.linkSystemLibrary("opencv_flann");
-    zigcv_lib.linkSystemLibrary("opencv_freetype");
-    zigcv_lib.linkSystemLibrary("opencv_fuzzy");
-    zigcv_lib.linkSystemLibrary("opencv_gapi");
-    zigcv_lib.linkSystemLibrary("opencv_hfs");
-    zigcv_lib.linkSystemLibrary("opencv_highgui");
-    zigcv_lib.linkSystemLibrary("opencv_imgcodecs");
-    zigcv_lib.linkSystemLibrary("opencv_imgproc");
-    zigcv_lib.linkSystemLibrary("opencv_intensity_transform");
-    zigcv_lib.linkSystemLibrary("opencv_line_descriptor");
-    zigcv_lib.linkSystemLibrary("opencv_mcc");
-    zigcv_lib.linkSystemLibrary("opencv_ml");
-    zigcv_lib.linkSystemLibrary("opencv_objdetect");
-    zigcv_lib.linkSystemLibrary("opencv_optflow");
-    zigcv_lib.linkSystemLibrary("opencv_phase_unwrapping");
-    zigcv_lib.linkSystemLibrary("opencv_photo");
-    zigcv_lib.linkSystemLibrary("opencv_plot");
-    zigcv_lib.linkSystemLibrary("opencv_quality");
-    zigcv_lib.linkSystemLibrary("opencv_rapid");
-    zigcv_lib.linkSystemLibrary("opencv_reg");
-    zigcv_lib.linkSystemLibrary("opencv_rgbd");
-    zigcv_lib.linkSystemLibrary("opencv_saliency");
-    zigcv_lib.linkSystemLibrary("opencv_shape");
-    zigcv_lib.linkSystemLibrary("opencv_signal");
-    zigcv_lib.linkSystemLibrary("opencv_stereo");
-    zigcv_lib.linkSystemLibrary("opencv_stitching");
-    zigcv_lib.linkSystemLibrary("opencv_structured_light");
-    zigcv_lib.linkSystemLibrary("opencv_superres");
-    zigcv_lib.linkSystemLibrary("opencv_surface_matching");
-    zigcv_lib.linkSystemLibrary("opencv_text");
-    zigcv_lib.linkSystemLibrary("opencv_video");
-    zigcv_lib.linkSystemLibrary("opencv_videoio");
-    zigcv_lib.linkSystemLibrary("opencv_videostab");
-    zigcv_lib.linkSystemLibrary("opencv_xobjdetect");
-
-    zigcv_lib.linkSystemLibrary("opencv_aruco");
-    zigcv_lib.linkSystemLibrary("opencv_bgsegm");
-    zigcv_lib.linkSystemLibrary("opencv_face");
-    zigcv_lib.linkSystemLibrary("opencv_img_hash");
-    zigcv_lib.linkSystemLibrary("opencv_tracking");
-    zigcv_lib.linkSystemLibrary("opencv_wechat_qrcode");
-    zigcv_lib.linkSystemLibrary("opencv_xfeatures2d");
-    zigcv_lib.linkSystemLibrary("opencv_ximgproc");
-    zigcv_lib.linkSystemLibrary("opencv_xphoto");
+    // Note: OpenCV libraries are not linked here to avoid embedding shared library
+    // references in the static library. They must be linked by executables that use zigcv.
 
     b.installArtifact(zigcv_lib);
 
@@ -215,6 +159,62 @@ pub fn build(b: *std.Build) void {
     unit_tests.addLibraryPath(opencv_build.lib_dir);
     unit_tests.linkLibrary(zigcv_lib);
     unit_tests.linkLibCpp();
+    unit_tests.linkSystemLibrary("z");
+
+    // Link OpenCV libraries directly to the test executable
+    unit_tests.linkSystemLibrary("opencv_bioinspired");
+    unit_tests.linkSystemLibrary("opencv_calib3d");
+    unit_tests.linkSystemLibrary("opencv_ccalib");
+    unit_tests.linkSystemLibrary("opencv_core");
+    unit_tests.linkSystemLibrary("opencv_datasets");
+    unit_tests.linkSystemLibrary("opencv_dnn");
+    unit_tests.linkSystemLibrary("opencv_dnn_objdetect");
+    unit_tests.linkSystemLibrary("opencv_dnn_superres");
+    unit_tests.linkSystemLibrary("opencv_dpm");
+    unit_tests.linkSystemLibrary("opencv_features2d");
+    unit_tests.linkSystemLibrary("opencv_flann");
+    unit_tests.linkSystemLibrary("opencv_freetype");
+    unit_tests.linkSystemLibrary("opencv_fuzzy");
+    unit_tests.linkSystemLibrary("opencv_gapi");
+    unit_tests.linkSystemLibrary("opencv_hfs");
+    unit_tests.linkSystemLibrary("opencv_highgui");
+    unit_tests.linkSystemLibrary("opencv_imgcodecs");
+    unit_tests.linkSystemLibrary("opencv_imgproc");
+    unit_tests.linkSystemLibrary("opencv_intensity_transform");
+    unit_tests.linkSystemLibrary("opencv_line_descriptor");
+    unit_tests.linkSystemLibrary("opencv_mcc");
+    unit_tests.linkSystemLibrary("opencv_ml");
+    unit_tests.linkSystemLibrary("opencv_objdetect");
+    unit_tests.linkSystemLibrary("opencv_optflow");
+    unit_tests.linkSystemLibrary("opencv_phase_unwrapping");
+    unit_tests.linkSystemLibrary("opencv_photo");
+    unit_tests.linkSystemLibrary("opencv_plot");
+    unit_tests.linkSystemLibrary("opencv_quality");
+    unit_tests.linkSystemLibrary("opencv_rapid");
+    unit_tests.linkSystemLibrary("opencv_reg");
+    unit_tests.linkSystemLibrary("opencv_rgbd");
+    unit_tests.linkSystemLibrary("opencv_saliency");
+    unit_tests.linkSystemLibrary("opencv_shape");
+    unit_tests.linkSystemLibrary("opencv_signal");
+    unit_tests.linkSystemLibrary("opencv_stereo");
+    unit_tests.linkSystemLibrary("opencv_stitching");
+    unit_tests.linkSystemLibrary("opencv_structured_light");
+    unit_tests.linkSystemLibrary("opencv_superres");
+    unit_tests.linkSystemLibrary("opencv_surface_matching");
+    unit_tests.linkSystemLibrary("opencv_text");
+    unit_tests.linkSystemLibrary("opencv_video");
+    unit_tests.linkSystemLibrary("opencv_videoio");
+    unit_tests.linkSystemLibrary("opencv_videostab");
+    unit_tests.linkSystemLibrary("opencv_xobjdetect");
+    unit_tests.linkSystemLibrary("opencv_aruco");
+    unit_tests.linkSystemLibrary("opencv_bgsegm");
+    unit_tests.linkSystemLibrary("opencv_face");
+    unit_tests.linkSystemLibrary("opencv_img_hash");
+    unit_tests.linkSystemLibrary("opencv_tracking");
+    unit_tests.linkSystemLibrary("opencv_wechat_qrcode");
+    unit_tests.linkSystemLibrary("opencv_xfeatures2d");
+    unit_tests.linkSystemLibrary("opencv_ximgproc");
+    unit_tests.linkSystemLibrary("opencv_xphoto");
 
     const run_unit_tests = b.addRunArtifact(unit_tests);
     const test_step = b.step("test", "Run unit tests");
@@ -233,9 +233,6 @@ const OpenCVBuild = struct {
 fn buildOpenCVStep(b: *std.Build) OpenCVBuild {
     const cmake_bin = b.findProgram(&.{"cmake"}, &.{}) catch @panic("Could not find cmake");
 
-    const configure_cmd = b.addSystemCommand(&.{ cmake_bin, "-B" });
-    const build_work_dir = configure_cmd.addOutputDirectoryArg("build_work");
-
     const opencv_dep = b.dependency("opencv", .{});
     const opencv_path = opencv_dep.path("");
     const opencv_source_include = opencv_dep.path("include");
@@ -244,33 +241,63 @@ fn buildOpenCVStep(b: *std.Build) OpenCVBuild {
     const opencv_contrib_dep = b.dependency("opencv_contrib", .{});
     const opencv_contrib_modules_dir = opencv_contrib_dep.path("modules");
 
-    configure_cmd.addArg("-S");
-    configure_cmd.addDirectoryArg(opencv_path);
-
+    const configure_cmd = b.addSystemCommand(&.{ cmake_bin, "-B" });
     configure_cmd.setName("Running OpenCV's cmake --configure");
-    configure_cmd.addPrefixedDirectoryArg("-DOPENCV_EXTRA_MODULES_PATH=", opencv_contrib_modules_dir);
-    configure_cmd.addArgs(&.{
-        "-DCMAKE_BUILD_TYPE=RELEASE",
-        "-DWITH_IPP=OFF",
-        "-DCMAKE_C_COMPILER=gcc",
-        "-DCMAKE_CXX_COMPILER=g++",
-        "-DCMAKE_CXX_STANDARD=17",
-        "-DOPENCV_ENABLE_NONFREE=ON",
-        "-DWITH_JASPER=OFF",
-        "-DWITH_TBB=ON",
-        "-DBUILD_DOCS=OFF",
-        "-DBUILD_EXAMPLES=OFF",
-        "-DBUILD_TESTS=OFF",
-        "-DBUILD_PERF_TESTS=OFF",
-        "-DBUILD_APPS=OFF",
-        "-DBUILD_opencv_apps=OFF",
-        "-DBUILD_opencv_java=NO",
-        "-DBUILD_opencv_python=NO",
-        "-DBUILD_opencv_python2=NO",
-        "-DBUILD_opencv_python3=NO",
-        "-DOPENCV_GENERATE_PKGCONFIG=OFF",
-    });
+    const build_work_dir = configure_cmd.addOutputDirectoryArg("build_work");
 
+    // Use environment variables instead of CMake compiler flags
+    configure_cmd.setEnvironmentVariable("CC", "zig cc");
+    configure_cmd.setEnvironmentVariable("CXX", "zig c++");
+
+    configure_cmd.addArgs(&.{
+        "-D",
+        "CMAKE_BUILD_TYPE=RELEASE",
+        "-D",
+        "WITH_IPP=OFF",
+        "-D",
+        "CMAKE_CXX_STANDARD=17",
+        "-D",
+        "CMAKE_LINK_DEPENDS_NO_SHARED=ON",
+        "-D",
+        "CMAKE_CXX_FLAGS=-isystem-after /usr/include",
+        "-D",
+    });
+    configure_cmd.addPrefixedDirectoryArg("OPENCV_EXTRA_MODULES_PATH=", opencv_contrib_modules_dir);
+    configure_cmd.addArgs(&.{
+        "-D",
+        "OPENCV_ENABLE_NONFREE=ON",
+        "-D",
+        "WITH_JASPER=OFF",
+        "-D",
+        "WITH_OPENEXR=OFF",
+        "-D",
+        "WITH_TBB=ON",
+        "-D",
+        "BUILD_DOCS=OFF",
+        "-D",
+        "BUILD_EXAMPLES=OFF",
+        "-D",
+        "BUILD_TESTS=OFF",
+        "-D",
+        "BUILD_PERF_TESTS=OFF",
+        "-D",
+        "BUILD_APPS=OFF",
+        "-D",
+        "BUILD_opencv_apps=OFF",
+        "-D",
+        "BUILD_opencv_dnn=OFF",
+        "-D",
+        "BUILD_opencv_java=NO",
+        "-D",
+        "BUILD_opencv_python=NO",
+        "-D",
+        "BUILD_opencv_python2=NO",
+        "-D",
+        "BUILD_opencv_python3=NO",
+        "-D",
+        "OPENCV_GENERATE_PKGCONFIG=OFF",
+    });
+    configure_cmd.addDirectoryArg(opencv_path);
     configure_cmd.expectExitCode(0);
 
     const cpu_count = std.Thread.getCpuCount() catch 1;
@@ -282,11 +309,6 @@ fn buildOpenCVStep(b: *std.Build) OpenCVBuild {
     build_cmd.addArgs(&.{ "-j", num_cores });
     build_cmd.step.dependOn(&configure_cmd.step);
     build_cmd.expectExitCode(0);
-
-    // const install_cmd = b.addSystemCommand(&.{ cmake_bin, "--install" });
-    // install_cmd.addDirectoryArg(build_work_dir);
-    // install_cmd.step.dependOn(&build_cmd.step);
-    // install_cmd.expectExitCode(0);
 
     return .{
         .build_step = build_cmd,

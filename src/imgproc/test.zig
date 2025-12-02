@@ -460,7 +460,8 @@ test "imgproc areaRect" {
 
     try testing.expectEqual(@as(i32, 2.0), m.center.x);
     try testing.expectEqual(@as(i32, 2.0), m.center.y);
-    try testing.expectEqual(@as(f64, 45.0), m.angle);
+    // Angle can be 45 or -45 depending on OpenCV version/build
+    try testing.expect(@abs(m.angle) == 45.0);
 }
 
 test "imgproc fitEllipse" {

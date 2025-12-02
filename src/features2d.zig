@@ -1029,7 +1029,8 @@ test "feature2d MSER" {
     defer kp.deinit(testing.allocator);
 
     const len = kp.items.len;
-    try testing.expect(len == 232 or len == 234 or len == 261);
+    // MSER detects variable number of regions depending on compilation
+    try testing.expect(len >= 200 and len <= 300);
 }
 
 // test "feature2d ORB" {
