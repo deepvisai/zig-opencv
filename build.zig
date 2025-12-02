@@ -10,7 +10,7 @@ const zig_src_dir = "src/";
 
 const opencv_modules = [_][]const u8{
     "core", "imgproc", "imgcodecs", "videoio",   "highgui", "video", "calib3d", "features2d", "objdetect",
-    "ml",   "flann",   "photo",     "stitching", "gapi",
+    "ml",   "flann",   "photo",     "stitching", "gapi", "dnn"
 };
 
 const opencv_contrib_modules = [_][]const u8{
@@ -90,10 +90,10 @@ pub fn build(b: *std.Build) void {
     zigcv_lib.addCSourceFiles(.{
         .files = &.{
             "aruco.cpp",
-            // "asyncarray.cpp",  // Removed: depends on DNN
+            "asyncarray.cpp",
             "calib3d.cpp",
             "core.cpp",
-            // "dnn.cpp",  // Removed: DNN disabled
+            "dnn.cpp",
             "features2d.cpp",
             "highgui.cpp",
             "imgcodecs.cpp",
@@ -265,7 +265,6 @@ fn buildOpenCVStep(b: *std.Build) OpenCVBuild {
         "-DBUILD_APPS=OFF",
         "-DBUILD_opencv_apps=OFF",
         "-DBUILD_opencv_java=NO",
-        "-DBUILD_opencv_dnn=OFF",
         "-DBUILD_opencv_python=NO",
         "-DBUILD_opencv_python2=NO",
         "-DBUILD_opencv_python3=NO",

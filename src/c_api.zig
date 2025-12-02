@@ -5,7 +5,7 @@ pub const c =  @cImport({
     @cInclude("aruco.h");
     @cInclude("calib3d.h");
     @cInclude("core.h");
-    // @cInclude("dnn.h");
+    @cInclude("dnn.h");
     @cInclude("features2d.h");
     @cInclude("highgui_gocv.h");
     @cInclude("imgcodecs.h");

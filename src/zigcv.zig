@@ -1,7 +1,7 @@
 pub const asyncarray = @import("asyncarray.zig");
 pub const core = @import("core.zig");
 pub const calib3d = @import("calib3d.zig");
-// pub const dnn = @import("dnn.zig");
+pub const dnn = @import("dnn.zig");
 pub const features2d = @import("features2d.zig");
 pub const highgui = @import("highgui.zig");
 pub const objdetect = @import("objdetect.zig");
@@ -23,7 +23,7 @@ test {
     _ = @import("core.zig");
     _ = @import("core/mat.zig");
     _ = @import("core/mat_test.zig");
-    // _ = @import("dnn.zig");
+    _ = @import("dnn.zig");
     _ = @import("dnn/test.zig");
     _ = @import("features2d.zig");
     _ = @import("highgui.zig");
