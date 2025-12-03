@@ -80,10 +80,6 @@ pub fn build(b: *std.Build) void {
     // Get dependencies
     // ===========================================================================
 
-    const gocv_dep = b.dependency("gocv", .{});
-    const gocv_src_dir = gocv_dep.path("");
-    const gocv_contrib_dir = gocv_dep.path("contrib");
-
     const opencv_dep = b.dependency("opencv", .{});
     const opencv_path = opencv_dep.path("");
     const opencv_source_include = opencv_dep.path("include");
@@ -228,9 +224,7 @@ pub fn build(b: *std.Build) void {
         .link_libcpp = true,
     });
 
-    zigcv_module.addIncludePath(gocv_src_dir);
-    zigcv_module.addIncludePath(gocv_contrib_dir);
-    zigcv_module.addIncludePath(b.path(zig_src_dir));
+    zigcv_module.addIncludePath(b.path("src"));
     zigcv_module.addIncludePath(opencv_source_include);
     zigcv_module.addIncludePath(opencv_include_dir);
 
@@ -267,9 +261,7 @@ pub fn build(b: *std.Build) void {
     zigcv_lib.step.dependOn(&build_cmd.step);
 
     // Include paths
-    zigcv_lib.addIncludePath(gocv_src_dir);
-    zigcv_lib.addIncludePath(gocv_contrib_dir);
-    zigcv_lib.addIncludePath(b.path(zig_src_dir));
+    zigcv_lib.addIncludePath(b.path("src"));
     zigcv_lib.addIncludePath(opencv_source_include);
     zigcv_lib.addIncludePath(opencv_include_dir);
 
@@ -289,28 +281,21 @@ pub fn build(b: *std.Build) void {
 
     zigcv_lib.addLibraryPath(opencv_lib_dir);
 
-    // C++ wrapper sources
-    zigcv_lib.addCSourceFile(.{
-        .file = b.path("src/core/zig_core.cpp"),
-        .flags = c_build_options,
-    });
-
     // Core wrapper sources (always needed)
     zigcv_lib.addCSourceFiles(.{
         .files = &.{
-            "calib3d.cpp",   "core.cpp",      "features2d.cpp",
+            "cv_error.cpp",  "calib3d.cpp",   "core.cpp",      "features2d.cpp",
             "imgcodecs.cpp", "imgproc.cpp",   "objdetect.cpp",
             "photo.cpp",     "video.cpp",     "videoio.cpp",
         },
-        .root = gocv_src_dir,
+        .root = b.path("src"),
         .flags = c_build_options,
     });
 
     // Optional: highgui wrapper (only if module is built)
     if (build_highgui) {
-        zigcv_lib.addCSourceFiles(.{
-            .files = &.{"highgui.cpp"},
-            .root = gocv_src_dir,
+        zigcv_lib.addCSourceFile(.{
+            .file = b.path("src/highgui.cpp"),
             .flags = c_build_options,
         });
     }
@@ -319,7 +304,7 @@ pub fn build(b: *std.Build) void {
     if (build_contrib) {
         zigcv_lib.addCSourceFiles(.{
             .files = &.{"aruco.cpp"},
-            .root = gocv_src_dir,
+            .root = b.path("src"),
             .flags = c_build_options,
         });
 
@@ -329,7 +314,15 @@ pub fn build(b: *std.Build) void {
                 "tracking.cpp", "wechat_qrcode.cpp", "xfeatures2d.cpp", "ximgproc.cpp",
                 "xphoto.cpp",
             },
-            .root = gocv_contrib_dir,
+            .root = b.path("src/contrib"),
+            .flags = c_build_options,
+        });
+    }
+
+    if (with_cuda) {
+        // Add CUDA wrappers when they exist
+        zigcv_lib.addCSourceFile(.{
+            .file = b.path("src/cuda/cuda.cpp"),
             .flags = c_build_options,
         });
     }
@@ -380,9 +373,7 @@ pub fn build(b: *std.Build) void {
     });
 
     unit_tests.step.dependOn(&build_cmd.step);
-    unit_tests.addIncludePath(gocv_src_dir);
-    unit_tests.addIncludePath(gocv_contrib_dir);
-    unit_tests.addIncludePath(b.path(zig_src_dir));
+    unit_tests.addIncludePath(b.path("src"));
     unit_tests.addIncludePath(opencv_source_include);
     unit_tests.addIncludePath(opencv_include_dir);
 

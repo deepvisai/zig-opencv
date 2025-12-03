@@ -4,10 +4,6 @@
     .fingerprint = 0x44e52a1243c5569b, // Changing this has security and trust implications.
     .minimum_zig_version = "0.16.0-dev.1470+32dc46aae",
     .dependencies = .{
-        .gocv = .{
-            .url = "git+https://github.com/hybridgroup/gocv.git#a84799d26fcb6914a6971a9847ae4aee18fa6612",
-            .hash = "N-V-__8AABGWngDePwjC_h0HkZD-n0Dz33dLtGipFKNYdIKv",
-        },
         .opencv = .{
             .url = "git+https://github.com/opencv/opencv.git#a08565253ee098eae55e893d3f8e5d9a011440a9",
             .hash = "N-V-__8AAL0eLAzJWenl9SRBpa3l9HC0XqnsmpH9_wubBjeg",

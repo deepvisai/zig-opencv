@@ -12,6 +12,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+struct Mats Mats_New(int length);
+
 // Wrapper for std::vector<string>
 typedef struct CStrings {
     const char** strs;
