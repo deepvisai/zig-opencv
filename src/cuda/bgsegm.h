@@ -1,0 +1,42 @@
+// Originally from GoCV (https://github.com/hybridgroup/gocv)
+// Copyright (c) 2017-2024 The Hybrid Group
+// Licensed under Apache License 2.0
+//
+// Modified for zig-opencv, 2025
+// Modifications licensed under MIT License
+
+
+#ifndef _OPENCV3_CUDABGSEGM_H_
+#define _OPENCV3_CUDABGSEGM_H_
+
+#ifdef __cplusplus
+#include <opencv2/opencv.hpp>
+#include <opencv2/cudabgsegm.hpp>
+
+extern "C" {
+#endif
+
+#include "../core.h"
+#include "cuda.h"
+
+#ifdef __cplusplus
+typedef cv::Ptr<cv::cuda::BackgroundSubtractorMOG2>* CudaBackgroundSubtractorMOG2;
+typedef cv::Ptr<cv::cuda::BackgroundSubtractorMOG>* CudaBackgroundSubtractorMOG;
+#else
+typedef void* CudaBackgroundSubtractorMOG2;
+typedef void* CudaBackgroundSubtractorMOG;
+#endif
+
+CudaBackgroundSubtractorMOG2 CudaBackgroundSubtractorMOG2_Create();
+void CudaBackgroundSubtractorMOG2_Close(CudaBackgroundSubtractorMOG2 b);
+OpenCVResult CudaBackgroundSubtractorMOG2_Apply(CudaBackgroundSubtractorMOG2 b, GpuMat src, GpuMat dst, Stream s);
+
+CudaBackgroundSubtractorMOG CudaBackgroundSubtractorMOG_Create();
+void CudaBackgroundSubtractorMOG_Close(CudaBackgroundSubtractorMOG b);
+OpenCVResult CudaBackgroundSubtractorMOG_Apply(CudaBackgroundSubtractorMOG b, GpuMat src, GpuMat dst, Stream s);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif //_OPENCV3_CUDABGSEGM_H_

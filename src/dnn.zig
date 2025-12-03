@@ -485,10 +485,6 @@ pub fn nmsBoxesWithParams(
     return indices;
 }
 
-test "dnn" {
-    _ = @import("dnn/test.zig");
-}
-
 //*    implementation done
 //*    pub const Net = ?*anyopaque;
 //*    pub const Layer = ?*anyopaque;

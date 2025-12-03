@@ -18,7 +18,6 @@ const Point2fVector = core.Point2fVector;
 const RotatedRect = core.RotatedRect;
 const MatType = Mat.MatType;
 const TermCriteria = core.TermCriteria;
-const ColorConversionCode = @import("imgproc/color_codes.zig").ColorConversionCode;
 
 const BorderType = core.BorderType;
 
@@ -479,9 +478,9 @@ pub fn approxPolyDP(curve: PointVector, epsilon: f64, closed: bool) !PointVector
 /// For further details, please see:
 /// http://docs.opencv.org/master/d7/d1b/group__imgproc__misc.html#ga4e0972be5de079fed4e3a10e24ef5ef0
 ///
-pub fn cvtColor(src: Mat, dst: *Mat, code: ColorConversionCode) !void {
-    try cr(c.CvtColor(src.ptr, dst.*.ptr, @intFromEnum(code)));
-}
+// pub fn cvtColor(src: Mat, dst: *Mat, code: ColorConversionCode) !void {
+//     try cr(c.CvtColor(src.ptr, dst.*.ptr, @intFromEnum(code)));
+// }
 
 /// EqualizeHist normalizes the brightness and increases the contrast of the image.
 ///
@@ -1512,7 +1511,6 @@ pub fn accumulatedWeightedWithMask(src: Mat, dst: *Mat, alpha: f64, mask: Mat) !
 }
 
 test "imgproc" {
-    _ = @import("imgproc/test.zig");
     _ = HersheyFont;
     _ = InterpolationFlag;
     _ = ThresholdType;

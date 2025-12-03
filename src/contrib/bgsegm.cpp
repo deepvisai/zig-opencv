@@ -1,0 +1,33 @@
+// Originally from GoCV (https://github.com/hybridgroup/gocv)
+// Copyright (c) 2017-2024 The Hybrid Group
+// Licensed under Apache License 2.0
+//
+// Modified for zig-opencv, 2025
+// Modifications licensed under MIT License
+
+
+//go:build !gocv_specific_modules || (gocv_specific_modules && gocv_contrib_bgsegm)
+
+#include "bgsegm.h"
+
+BackgroundSubtractorCNT BackgroundSubtractorCNT_Create() {
+    try {
+        return new cv::Ptr<cv::bgsegm::BackgroundSubtractorCNT>(cv::bgsegm::createBackgroundSubtractorCNT());
+    } catch(const cv::Exception& e){
+        setExceptionInfo(e.code, e.what());
+        return NULL;
+    }
+}
+
+void BackgroundSubtractorCNT_Close(BackgroundSubtractorCNT b) {
+    delete b;
+}
+
+OpenCVResult BackgroundSubtractorCNT_Apply(BackgroundSubtractorCNT b, Mat src, Mat dst) {
+    try {
+        (*b)->apply(*src, *dst);
+        return successResult();
+    } catch(const cv::Exception& e) {
+        return errorResult(e.code, e.what());
+    }
+}
